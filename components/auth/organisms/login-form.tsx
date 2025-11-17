@@ -8,17 +8,37 @@ import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { TextInput } from "../molecules/text-input"
 import { PasswordInput } from "../molecules/password-input"
+import { login } from "@/lib/api/auth.service"
 
 export function LoginForm() {
   const router = useRouter()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [rememberMe, setRememberMe] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState("")
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setError("")
+    setIsLoading(true)
 
-    router.push("/dashboard")
+    try {
+      const response = await login({ email, password })
+      
+      // Login successful
+      console.log("Login successful:", response)
+      
+      // Redirect to dashboard
+      router.push("/dashboard")
+    } catch (err) {
+      // Handle error
+      const errorMessage = err instanceof Error ? err.message : "Login failed. Please try again."
+      setError(errorMessage)
+      console.error("Login error:", err)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -68,11 +88,18 @@ export function LoginForm() {
         </Link>
       </div>
 
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+          {error}
+        </div>
+      )}
+
       <Button 
         type="submit" 
-        className="w-full bg-[#183495] hover:bg-[#183495]/90 text-white h-12 rounded-lg text-base font-medium"
+        className="w-full bg-[#183495] hover:bg-[#183495]/90 text-white h-12 rounded-lg text-base font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+        disabled={isLoading}
       >
-        Login
+        {isLoading ? "Logging in..." : "Login"}
       </Button>
 
       <p className="text-center text-sm text-muted-foreground">
