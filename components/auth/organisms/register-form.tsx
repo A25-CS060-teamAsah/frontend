@@ -11,6 +11,7 @@ import { register } from "@/lib/api/auth.service"
 
 export function RegisterForm() {
   const router = useRouter()
+  const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
@@ -39,13 +40,14 @@ export function RegisterForm() {
     setIsLoading(true)
 
     try {
-      const response = await register({ email, password, role })
-      
+      const response = await register({ name, email, password, role })
+
       // Registration successful
       console.log("Registration successful:", response)
       setSuccess("User registered successfully! Redirecting...")
-      
+
       // Clear form
+      setName("")
       setEmail("")
       setPassword("")
       setConfirmPassword("")
@@ -77,6 +79,18 @@ export function RegisterForm() {
           {success}
         </div>
       )}
+
+      <div className="space-y-2">
+        <Label htmlFor="name">Name</Label>
+        <TextInput
+          id="name"
+          type="text"
+          placeholder="Type Your Name..."
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          required
+        />
+      </div>
 
       <div className="space-y-2">
         <Label htmlFor="email">Email</Label>
