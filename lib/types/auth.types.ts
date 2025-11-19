@@ -6,6 +6,7 @@ export interface LoginRequest {
 }
 
 export interface RegisterRequest {
+  name: string
   email: string
   password: string
   role: 'admin' | 'sales'
@@ -13,6 +14,7 @@ export interface RegisterRequest {
 
 export interface User {
   id: number
+  name: string
   email: string
   role: 'admin' | 'sales'
   createdAt?: string
