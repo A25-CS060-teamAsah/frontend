@@ -19,25 +19,23 @@ export function LoginForm() {
   const [error, setError] = useState("")
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError("")
-    setIsLoading(true)
+    e.preventDefault();
+    setError("");
+    setIsLoading(true);
 
     try {
-      const response = await login({ email, password })
+      const response = await login({ email, password });
       
-      // Login successful
-      console.log("Login successful:", response)
-      
-      // Redirect to dashboard
-      router.push("/dashboard")
+      if (response.success) {
+        const redirectPath = sessionStorage.getItem("redirectAfterLogin") || "/dashboard";
+        sessionStorage.removeItem("redirectAfterLogin");
+        router.push(redirectPath);
+      }
     } catch (err) {
-      // Handle error
-      const errorMessage = err instanceof Error ? err.message : "Login failed. Please try again."
-      setError(errorMessage)
-      console.error("Login error:", err)
+      const errorMessage = err instanceof Error ? err.message : "Login failed. Please try again.";
+      setError(errorMessage);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
   }
 
@@ -47,10 +45,12 @@ export function LoginForm() {
         <Label htmlFor="email">Email</Label>
         <TextInput
           id="email"
+          name="email"
           type="email"
           placeholder="Type Your Email..."
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          autoComplete="email"
           required
         />
       </div>
@@ -59,9 +59,11 @@ export function LoginForm() {
         <Label htmlFor="password">Password</Label>
         <PasswordInput
           id="password"
+          name="password"
           placeholder="Type Your Password..."
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          autoComplete="current-password"
           required
         />
       </div>
@@ -101,13 +103,6 @@ export function LoginForm() {
       >
         {isLoading ? "Logging in..." : "Login"}
       </Button>
-
-      <p className="text-center text-sm text-muted-foreground">
-        Don&apos;t have an account?{" "}
-        <Link href="/register" className="text-[#407BFF] hover:underline font-medium">
-          Register
-        </Link>
-      </p>
     </form>
   )
 }

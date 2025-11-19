@@ -1,10 +1,10 @@
 "use client"
 
-import { useState } from "react"
-import Link from "next/link"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { TextInput } from "../molecules/text-input"
 import { PasswordInput } from "../molecules/password-input"
 import { register } from "@/lib/api/auth.service"
@@ -15,25 +15,32 @@ export function RegisterForm() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
-  const [role] = useState<'admin' | 'sales'>("admin")
+  const [role, setRole] = useState<'admin' | 'sales'>("sales")
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
   const [success, setSuccess] = useState("")
+  const [passwordMatch, setPasswordMatch] = useState<boolean | null>(null)
+
+  useEffect(() => {
+    if (confirmPassword.length > 0) {
+      setPasswordMatch(password === confirmPassword)
+    } else {
+      setPasswordMatch(null)
+    }
+  }, [password, confirmPassword])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
     setSuccess("")
 
-    // Validate password match
-    if (password !== confirmPassword) {
-      setError("Passwords do not match")
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters long")
       return
     }
 
-    // Validate password length
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters long")
+    if (password !== confirmPassword) {
+      setError("Passwords do not match")
       return
     }
 
@@ -42,22 +49,19 @@ export function RegisterForm() {
     try {
       const response = await register({ name, email, password, role })
 
-      // Registration successful
       console.log("Registration successful:", response)
       setSuccess("User registered successfully! Redirecting...")
 
-      // Clear form
       setName("")
       setEmail("")
       setPassword("")
       setConfirmPassword("")
+      setRole("sales")
       
-      // Optional: redirect after success
       setTimeout(() => {
         router.push("/dashboard")
       }, 2000)
     } catch (err) {
-      // Handle error
       const errorMessage = err instanceof Error ? err.message : "Registration failed. Please try again."
       setError(errorMessage)
       console.error("Registration error:", err)
@@ -124,6 +128,25 @@ export function RegisterForm() {
           onChange={(e) => setConfirmPassword(e.target.value)}
           required
         />
+        {passwordMatch === false && confirmPassword.length > 0 && (
+          <p className="text-xs text-red-600 mt-1">Passwords do not match</p>
+        )}
+        {passwordMatch === true && (
+          <p className="text-xs text-green-600 mt-1">Passwords match ✓</p>
+        )}
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="role">Role</Label>
+        <Select value={role} onValueChange={(value) => setRole(value as 'admin' | 'sales')}>
+          <SelectTrigger className="w-full h-11">
+            <SelectValue placeholder="Select role" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="sales">Sales</SelectItem>
+            <SelectItem value="admin">Admin</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       <Button 
@@ -133,13 +156,6 @@ export function RegisterForm() {
       >
         {isLoading ? "Registering..." : "Register"}
       </Button>
-
-      <p className="text-center text-sm text-muted-foreground">
-        Already have an account?{" "}
-        <Link href="/login" className="text-[#407BFF] hover:underline font-medium">
-          Login
-        </Link>
-      </p>
     </form>
   )
 }

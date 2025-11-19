@@ -81,6 +81,24 @@ export const logout = (): void => {
 }
 
 /**
+ * Get current user profile from API
+ * @returns User profile
+ */
+export const getMe = async () => {
+  try {
+    const response = await apiClient.get('/auth/me')
+    if (response.data.success && response.data.data) {
+      localStorage.setItem('user', JSON.stringify(response.data.data))
+      return response.data.data
+    }
+    return null
+  } catch (error) {
+    console.error('Get me error:', error)
+    return null
+  }
+}
+
+/**
  * Get current user from localStorage
  * @returns User object or null
  */

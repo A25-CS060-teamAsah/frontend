@@ -6,7 +6,7 @@ import { Award, Clock, Phone, MessageCircle, Mail, TrendingUp } from "lucide-rea
 import { getScoreBadge, getScoreColor } from "@/lib/utils";
 
 export default function Pending() {
-  const [showContactOptions, setShowContactOptions] = useState(null); // state dropdown contact
+  const [showContactOptions, setShowContactOptions] = useState<number | null>(null); // state dropdown contact
 
   const pendingLeads = leads.filter((l) => l.status === "pending");
 
