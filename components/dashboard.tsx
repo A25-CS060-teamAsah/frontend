@@ -1,182 +1,255 @@
 "use client";
 
-import { ArrowUpRight, ArrowDownRight, Users, Award, TrendingUp, Phone, CheckCircle, Target, BarChart3, Clock, ChevronRight } from "lucide-react";
-import { leads, conversionData, scoreDistribution, targetData, totalLeadsMonthly, highPriorityMonthly, avgScoreMonthly } from "@/lib/data";
-import { getScoreColor, getScoreBadge, formatCurrency } from "@/lib/utils";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import {
+  Users,
+  Award,
+  TrendingUp,
+  Clock,
+  CheckCircle,
+  ChevronRight,
+  AlertCircle,
+  LoaderCircle,
+} from "lucide-react";
+import { getCustomerStats } from "@/lib/api/customer.service";
+import { getTopLeads, getPredictionStats } from "@/lib/api/prediction.service";
+import type { Customer, CustomerStats } from "@/lib/types/customer.types";
+
+type TrendItem = {
+  month: string;
+  total: number;
+  highPriority: number;
+  avgScore: number;
+};
+
+
 
 export default function Dashboard() {
-  const [selectedLead, setSelectedLead] = useState(null);
-  const router = useRouter(); // Tambahkan router untuk navigasi
+  const router = useRouter();
+  const [stats, setStats] = useState<CustomerStats | null>(null);
+  const [topLeads, setTopLeads] = useState<Customer[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [avgScore, setAvgScore] = useState<number>(0);
+  const [highPriorityCount, setHighPriorityCount] = useState<number>(0);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+
+        const [statsData, leadsData, predictionStats] = await Promise.all([
+          getCustomerStats(),
+          getTopLeads({ limit: 6, threshold: 0.5 }),
+          getPredictionStats(),
+        ]);
+
+        setStats(statsData);
+        setTopLeads(leadsData);
+        setAvgScore(parseFloat(predictionStats.averageScore));
+        setHighPriorityCount(predictionStats.positivePredictions);
+
+        const now = new Date().toISOString();
+        sessionStorage.setItem("leadscore:lastUpdated", now);
+        window.dispatchEvent(
+          new CustomEvent("leadscore:lastUpdated", { detail: now })
+        );
+      } catch (err) {
+        console.error("Fetch error:", err);
+        setError(
+          err instanceof Error ? err.message : "Failed to load dashboard data"
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const trendData = useMemo((): TrendItem[] => {
+    if (stats?.monthly_trend?.length) {
+      return stats.monthly_trend.map((item) => ({
+        month: item.month,
+        total: item.total,
+        highPriority: item.highPriority ?? Math.round(item.total * 0.25),
+        avgScore: item.avgScore ?? 0.7,
+      }));
+    }
+    return [];
+  }, [stats]);
+
+  const totalTrend = trendData.map((item) => ({
+    month: item.month,
+    count: item.total,
+  }));
+  const highPriorityTrend = trendData.map((item) => ({
+    month: item.month,
+    count: item.highPriority,
+  }));
+  const avgScoreTrend = trendData.map((item) => ({
+    month: item.month,
+    score: item.avgScore,
+  }));
+
+  const totalCardValue = stats?.total_customers ?? 0;
+  const highPriorityCardValue = highPriorityCount;
+  const avgScoreCardValue = avgScore;
+
+  const maxTotal = Math.max(...totalTrend.map((item) => item.count), 1);
+  const maxHigh = Math.max(...highPriorityTrend.map((item) => item.count), 1);
+
+  const pendingCalls = stats?.pending_calls ?? 0;
+  const monthlyConversions = stats?.monthly_conversions ?? 0;
+
+  const handleLeadClick = (customerId: number) => {
+    router.push(`/leadList?customerId=${customerId}`);
+  };
 
   return (
-    <div className="space-y-6">
-      {/* Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Total Leads */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
-          <div className="px-6 py-5 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-white">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-lg font-bold text-gray-800">Total Leads</h3>
-                <p className="text-sm text-gray-500 mt-1">Monthly growth</p>
-              </div>
-              <Users className="w-6 h-6 text-blue-600" />
-            </div>
-          </div>
-          <div className="p-6">
-            <div className="mb-4">
-              <p className="text-3xl font-bold text-blue-600">{totalLeadsMonthly[totalLeadsMonthly.length - 1].count} Leads</p>
-              <div className="flex items-center gap-1 mt-1">
-              </div>
-            </div>
-            <div className="space-y-2">
-              {totalLeadsMonthly.map((data, index) => (
-                <div key={index} className="flex items-center gap-3">
-                  <span className="text-xs font-medium text-gray-600 w-10">{data.month}</span>
-                  <div className="flex-1 bg-gray-100 rounded-full h-6 relative overflow-hidden">
-                    <div 
-                      className="bg-gradient-to-r from-blue-400 to-blue-600 h-full rounded-full transition-all duration-500 flex items-center justify-end pr-2"
-                      style={{ width: `${(data.count / 200) * 100}%` }}
-                    >
-                      <span className="text-xs font-bold text-white">{data.count}</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+    <div className="space-y-4 sm:space-y-6">
+      {error && (
+        <div className="flex items-center gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-red-600">
+          <AlertCircle className="h-5 w-5 flex-shrink-0" />
+          <p className="text-sm font-medium">{error}</p>
         </div>
+      )}
 
-        {/* High Priority */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
-          <div className="px-6 py-5 border-b border-gray-100 bg-gradient-to-r from-green-50 to-white">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-lg font-bold text-gray-800">High Priority</h3>
-                <p className="text-sm text-gray-500 mt-1">Quality leads</p>
-              </div>
-              <Award className="w-6 h-6 text-green-600" />
-            </div>
-          </div>
-          <div className="p-6">
-            <div className="mb-4">
-              <p className="text-3xl font-bold text-green-600">{highPriorityMonthly[highPriorityMonthly.length - 1].count} Leads</p>
-              <div className="flex items-center gap-1 mt-1">
-              </div>
-            </div>
-            <div className="space-y-2">
-              {highPriorityMonthly.map((data, index) => (
-                <div key={index} className="flex items-center gap-3">
-                  <span className="text-xs font-medium text-gray-600 w-10">{data.month}</span>
-                  <div className="flex-1 bg-gray-100 rounded-full h-6 relative overflow-hidden">
-                    <div 
-                      className="bg-gradient-to-r from-green-400 to-green-600 h-full rounded-full transition-all duration-500 flex items-center justify-end pr-2"
-                      style={{ width: `${(data.count / 60) * 100}%` }}
-                    >
-                      <span className="text-xs font-bold text-white">{data.count}</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+      {isLoading && (
+        <div className="flex items-center gap-2 rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-blue-700">
+          <LoaderCircle className="h-4 w-4 animate-spin" />
+          <p className="text-sm font-medium">Loading dashboard data...</p>
         </div>
+      )}
 
-        {/* Avg Score */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
-          <div className="px-6 py-5 border-b border-gray-100 bg-gradient-to-r from-purple-50 to-white">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-lg font-bold text-gray-800">Avg Score</h3>
-                <p className="text-sm text-gray-500 mt-1">Score quality trend</p>
-              </div>
-              <TrendingUp className="w-6 h-6 text-purple-600" />
-            </div>
-          </div>
-          <div className="p-6">
-            <div className="mb-4">
-              <p className="text-3xl font-bold text-purple-600">{(avgScoreMonthly[avgScoreMonthly.length - 1].score * 100).toFixed(0)}%</p>
-              <div className="flex items-center gap-1 mt-1">
-              </div>
-            </div>
-            <div className="space-y-2">
-              {avgScoreMonthly.map((data, index) => (
-                <div key={index} className="flex items-center gap-3">
-                  <span className="text-xs font-medium text-gray-600 w-10">{data.month}</span>
-                  <div className="flex-1 bg-gray-100 rounded-full h-6 relative overflow-hidden">
-                    <div 
-                      className="bg-gradient-to-r from-purple-400 to-purple-600 h-full rounded-full transition-all duration-500 flex items-center justify-end pr-2"
-                      style={{ width: `${data.score * 100}%` }}
-                    >
-                      <span className="text-xs font-bold text-white">{(data.score * 100).toFixed(0)}%</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
+      <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <MetricCard
+          title="Total Leads"
+          subtitle="Monthly growth"
+          icon={Users}
+          accent="from-blue-400 to-blue-600"
+          value={`${totalCardValue} Leads`}
+          data={totalTrend}
+          maxValue={maxTotal}
+        />
+
+        <MetricCard
+          title="High Priority"
+          subtitle="Quality leads"
+          icon={Award}
+          accent="from-green-400 to-green-600"
+          value={`${highPriorityCardValue} Leads`}
+          data={highPriorityTrend}
+          maxValue={maxHigh}
+        />
+
+        <MetricCard
+          title="Avg Score"
+          subtitle="Score quality trend"
+          icon={TrendingUp}
+          accent="from-purple-400 to-purple-600"
+          value={`${(avgScoreCardValue * 100).toFixed(0)}%`}
+          data={avgScoreTrend.map((item) => ({
+            month: item.month,
+            count: item.score * 100,
+          }))}
+          maxValue={100}
+        />
       </div>
 
-      {/* Recent Activity - Hanya Pending Calls dan Monthly Conversions */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg p-6 text-white">
-          <Clock className="w-10 h-10 mb-4 opacity-80" />
-          <h4 className="text-2xl font-bold mb-2">24</h4>
-          <p className="text-blue-100 mb-2">Pending Calls</p>
-          <div className="flex items-center gap-1 mb-4">
-          </div>
-          <button 
-            onClick={() => router.push('/pending')}
-            className="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg text-sm font-medium transition-colors">
-            View All
-          </button>
-        </div>
-
-        <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-xl shadow-lg p-6 text-white">
-          <CheckCircle className="w-10 h-10 mb-4 opacity-80" />
-          <h4 className="text-2xl font-bold mb-2">18</h4>
-          <p className="text-green-100 mb-2">Monthly Conversions</p>
-          <div className="flex items-center gap-1 mb-4">
-          </div>
-          <button 
-            onClick={() => router.push('/targets')}
-            className="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg text-sm font-medium transition-colors">
-            View Details
-          </button>
-        </div>
+      <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2">
+        <HighlightCard
+          icon={Clock}
+          bg="from-blue-500 to-blue-600"
+          value={pendingCalls}
+          label="Pending Leads"
+          actionLabel="View All"
+          onAction={() => router.push("/leadList")}
+        />
+        <HighlightCard
+          icon={CheckCircle}
+          bg="from-green-500 to-green-600"
+          value={monthlyConversions}
+          label="High Priority"
+          actionLabel="View List"
+          onAction={() => router.push("/leadList")}
+        />
       </div>
 
-      {/* Top Priority Leads Preview */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <div className="px-6 py-5 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-white">
-          <h3 className="text-lg font-bold text-gray-800">Top Priority Leads</h3>
-          <p className="text-sm text-gray-500 mt-1">Nasabah dengan probabilitas berlangganan tertinggi</p>
+      <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white">
+        <div className="border-b border-gray-100 bg-gradient-to-r from-blue-50 to-white px-4 sm:px-6 py-4 sm:py-5">
+          <h3 className="text-base sm:text-lg font-bold text-gray-800">
+            Top Priority Leads
+          </h3>
+          <p className="text-xs sm:text-sm text-gray-500">
+            Customers with highest subscription probability
+          </p>
         </div>
         <div className="divide-y divide-gray-100">
-          {leads.slice(0, 5).map((lead) => (
-            <div key={lead.id} className="px-6 py-5 hover:bg-blue-50/50 transition-all cursor-pointer group"
-                 onClick={() => router.push('/leadList')}>
-              <div className="flex items-center justify-between gap-6">
-                <div className="flex items-center gap-4 flex-1 min-w-0">
-                  <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold text-lg flex-shrink-0 shadow-md">
-                    {lead.name.charAt(0)}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h4 className="font-semibold text-gray-800 text-base mb-0.5">{lead.name}</h4>
-                    <p className="text-sm text-gray-500">{lead.job} • {lead.age} tahun • {lead.marital}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4 flex-shrink-0">
-                  <div className="text-right">
-                    <p className="text-xs text-gray-500 mb-1 font-medium">Skor Probabilitas</p>
-                    <p className={`text-2xl font-bold ${getScoreColor(lead.score).split(' ')[0]}`}>
-                      {(lead.score * 100).toFixed(0)}%
-                    </p>
-                  </div>
-                  <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-blue-600 transition-colors" />
+          {topLeads.map((lead) => (
+            <TopLeadRow
+              key={lead.id}
+              lead={lead}
+              onSelect={() => handleLeadClick(lead.id)}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+type MetricCardProps = {
+  title: string;
+  subtitle: string;
+  value: string;
+  icon: typeof Users;
+  accent: string;
+  data: { month: string; count: number }[];
+  maxValue: number;
+};
+
+function MetricCard({
+  title,
+  subtitle,
+  value,
+  icon: Icon,
+  accent,
+  data,
+  maxValue,
+}: MetricCardProps) {
+  return (
+    <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition hover:shadow-md">
+      <div className="border-b border-gray-100 bg-gradient-to-r from-slate-50 to-white px-4 sm:px-6 py-4 sm:py-5">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-base sm:text-lg font-semibold text-gray-900">{title}</p>
+            <p className="text-xs sm:text-sm text-gray-500">{subtitle}</p>
+          </div>
+          <Icon className="h-5 w-5 sm:h-6 sm:w-6 text-gray-400" />
+        </div>
+      </div>
+      <div className="space-y-3 sm:space-y-4 px-4 sm:px-6 py-4 sm:py-5">
+        <p className="text-2xl sm:text-3xl font-bold text-gray-900">{value}</p>
+        <div className="space-y-2">
+          {data.map((item) => (
+            <div key={item.month} className="flex items-center gap-2 sm:gap-3">
+              <span className="w-8 sm:w-10 text-xs font-semibold uppercase text-gray-500">
+                {item.month}
+              </span>
+              <div className="relative h-5 sm:h-6 flex-1 overflow-hidden rounded-full bg-gray-100">
+                <div
+                  className={`flex h-full items-center justify-end rounded-full bg-gradient-to-r ${accent} pr-2 text-xs font-semibold text-white transition-all`}
+                  style={{
+                    width: `${Math.min(
+                      100,
+                      Math.max(5, (item.count / maxValue) * 100)
+                    )}%`,
+                  }}
+                >
+                  {Math.round(item.count)}
                 </div>
               </div>
             </div>
@@ -184,5 +257,87 @@ export default function Dashboard() {
         </div>
       </div>
     </div>
+  );
+}
+
+type HighlightCardProps = {
+  icon: typeof Clock;
+  bg: string;
+  value: number;
+  label: string;
+  actionLabel: string;
+  onAction: () => void;
+};
+
+function HighlightCard({
+  icon: Icon,
+  bg,
+  value,
+  label,
+  actionLabel,
+  onAction,
+}: HighlightCardProps) {
+  return (
+    <div className={`rounded-2xl bg-gradient-to-br ${bg} px-4 sm:px-6 py-5 sm:py-6 text-white`}>
+      <Icon className="mb-3 sm:mb-4 h-8 w-8 sm:h-10 sm:w-10 opacity-80" />
+      <p className="text-3xl sm:text-4xl font-bold">{value}</p>
+      <p className="text-sm sm:text-base text-white/80">{label}</p>
+      <button
+        onClick={onAction}
+        className="mt-4 sm:mt-6 inline-flex items-center rounded-xl bg-white/20 px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold backdrop-blur transition hover:bg-white/30"
+      >
+        {actionLabel}
+      </button>
+    </div>
+  );
+}
+
+type TopLeadRowProps = {
+  lead: Customer;
+  onSelect: () => void;
+};
+
+function TopLeadRow({ lead, onSelect }: TopLeadRowProps) {
+  const score = lead.probability_score ?? 0;
+  const scoreColor =
+    score >= 0.75
+      ? "text-green-600"
+      : score >= 0.5
+        ? "text-yellow-600"
+        : "text-red-600";
+
+  const displayName = lead.full_name || `${lead.job} - ${lead.education}`;
+  const displayInfo = `${lead.age}y • ${lead.marital}`;
+
+  return (
+    <button
+      onClick={onSelect}
+      className="flex w-full items-center justify-between gap-2 sm:gap-4 px-4 sm:px-6 py-4 sm:py-5 text-left transition hover:bg-blue-50/60"
+    >
+      <div className="flex flex-1 items-center gap-3 sm:gap-4 min-w-0">
+        <div className="flex h-12 w-12 sm:h-14 sm:w-14 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-lg sm:text-xl font-bold text-white shadow-md">
+          {displayName.charAt(0).toUpperCase()}
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-sm sm:text-base font-semibold text-gray-900">
+            {displayName}
+          </p>
+          <p className="truncate text-xs sm:text-sm text-gray-500">
+            {displayInfo}
+          </p>
+        </div>
+      </div>
+      <div className="flex items-center gap-3 sm:gap-6 flex-shrink-0">
+        <div className="text-right">
+          <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">
+            Score
+          </p>
+          <p className={`text-xl sm:text-2xl font-bold ${scoreColor}`}>
+            {(score * 100).toFixed(0)}%
+          </p>
+        </div>
+        <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5 text-gray-300" />
+      </div>
+    </button>
   );
 }
