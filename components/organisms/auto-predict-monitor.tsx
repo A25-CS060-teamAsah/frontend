@@ -51,14 +51,26 @@ export default function AutoPredictMonitor() {
       setIsTriggeringJob(true);
       const result = await triggerManualPredictJob();
 
-      // Show success message
-      const resultMessage = result.results
-        ? `Processed: ${JSON.stringify(result.results, null, 2)}`
-        : result.message || "Auto-predict job completed";
+      // Format user-friendly message
+      let message = result.message || "Auto-predict job completed successfully";
+
+      if (result.results) {
+        const { total, success, failed } = result.results;
+
+        if (total === 0) {
+          message = "All customers already have predictions. No new predictions needed.";
+        } else if (success > 0 && failed === 0) {
+          message = `Successfully predicted ${success} customer${success > 1 ? 's' : ''}!`;
+        } else if (success > 0 && failed > 0) {
+          message = `Predicted ${success} customer${success > 1 ? 's' : ''} successfully. ${failed} failed.`;
+        } else if (failed > 0) {
+          message = `Failed to predict ${failed} customer${failed > 1 ? 's' : ''}.`;
+        }
+      }
 
       showSuccess(
-        "Job Triggered Successfully",
-        `Auto-predict job has been triggered!\n\n${resultMessage}`
+        "Auto-Predict Job Triggered",
+        message
       );
 
       // Refresh data after 2 seconds
