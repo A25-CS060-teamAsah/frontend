@@ -65,6 +65,7 @@ export const DAY_OPTIONS = ["mon", "tue", "wed", "thu", "fri"].map(
 );
 
 export const POUTCOME_OPTIONS = [
+  { value: "unknown", label: "Unknown" },
   { value: "failure", label: "Failure" },
   { value: "nonexistent", label: "Nonexistent" },
   { value: "success", label: "Success" },

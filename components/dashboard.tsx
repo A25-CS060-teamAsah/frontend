@@ -94,15 +94,15 @@ export default function Dashboard() {
     score: item.avgScore,
   }));
 
-  const totalCardValue = stats?.total_customers ?? 0;
+  const totalCardValue = (stats as any)?.totalCustomers ?? (stats as any)?.total_customers ?? 0;
   const highPriorityCardValue = highPriorityCount;
   const avgScoreCardValue = avgScore;
 
   const maxTotal = Math.max(...totalTrend.map((item) => item.count), 1);
   const maxHigh = Math.max(...highPriorityTrend.map((item) => item.count), 1);
 
-  const pendingCalls = stats?.pending_calls ?? 0;
-  const monthlyConversions = stats?.monthly_conversions ?? 0;
+  const pendingCalls = (stats as any)?.pendingCalls ?? (stats as any)?.pending_calls ?? 0;
+  const monthlyConversions = (stats as any)?.monthlyConversions ?? (stats as any)?.monthly_conversions ?? 0;
 
   const handleLeadClick = (customerId: number) => {
     router.push(`/leadList?customerId=${customerId}`);
@@ -306,8 +306,9 @@ function TopLeadRow({ lead, onSelect }: TopLeadRowProps) {
         ? "text-yellow-600"
         : "text-red-600";
 
-  const displayName = lead.full_name || `${lead.job} - ${lead.education}`;
-  const displayInfo = `${lead.age}y • ${lead.marital}`;
+  // Prioritas: full_name > name > fallback to Customer ID
+  const displayName = lead.full_name || lead.name || `Customer #${lead.id}`;
+  const displayInfo = `${lead.job} • ${lead.age}y • ${lead.marital}`;
 
   return (
     <button

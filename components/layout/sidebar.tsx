@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { TrendingUp, Users, UserPlus, LogOut, PanelLeftClose, PanelLeft, Menu } from "lucide-react";
+import { TrendingUp, Users, UserPlus, LogOut, PanelLeftClose, PanelLeft, Menu, BarChart3, Settings } from "lucide-react";
 import { useState, useEffect } from "react";
 import { logout, getCurrentUser } from "@/lib/api/auth.service";
 import { UserProfile } from "@/components/auth/molecules/user-profile";
@@ -14,6 +14,8 @@ import { cn } from "@/lib/utils";
 const NAV_ITEMS = [
   { href: "/dashboard", label: "Dashboard", icon: TrendingUp, roles: ["admin", "sales"] },
   { href: "/leadList", label: "Leads", icon: Users, roles: ["admin", "sales"] },
+  { href: "/analytics", label: "Analytics", icon: BarChart3, roles: ["admin", "sales"] },
+  { href: "/admin", label: "Auto-Predict Monitor", icon: Settings, roles: ["admin", "sales"] },
   { href: "/register", label: "Create New User", icon: UserPlus, roles: ["admin"] },
 ];
 

@@ -2,11 +2,15 @@
 
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { Search, Loader2, Plus, Edit, Trash2, TrendingUp } from "lucide-react";
+import { Search, Loader2, Plus, Edit, Trash2, TrendingUp, Upload, Zap } from "lucide-react";
 import { getCustomers, deleteCustomer } from "@/lib/api/customer.service";
+import { predictBatchCustomers } from "@/lib/api/prediction.service";
 import { Customer } from "@/lib/types/customer.types";
 import LeadDetailModal from "./organisms/lead-detail-modal";
 import CustomerFormModal from "./organisms/customer-form-modal";
+import CSVUploadModal from "./organisms/csv-upload-modal";
+import NotificationModal from "@/components/ui/notification-modal";
+import { useNotification } from "@/hooks/useNotification";
 
 const formatCurrency = (amount?: number | null) => {
   if (!amount) return "N/A";
@@ -28,8 +32,12 @@ export default function Leads() {
   const [totalPages, setTotalPages] = useState(1);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showFormModal, setShowFormModal] = useState(false);
+  const [showCSVModal, setShowCSVModal] = useState(false);
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
+  const [selectedCustomers, setSelectedCustomers] = useState<number[]>([]);
+  const [isBatchPredicting, setIsBatchPredicting] = useState(false);
+  const { notification, showSuccess, showError, showConfirm, closeNotification } = useNotification();
 
   useEffect(() => {
     const customerId = searchParams.get("customerId");
@@ -110,6 +118,52 @@ export default function Leads() {
     setShowDetailModal(true);
   };
 
+  const toggleSelectCustomer = (customerId: number) => {
+    setSelectedCustomers(prev =>
+      prev.includes(customerId)
+        ? prev.filter(id => id !== customerId)
+        : [...prev, customerId]
+    );
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedCustomers.length === filteredLeads.length) {
+      setSelectedCustomers([]);
+    } else {
+      setSelectedCustomers(filteredLeads.map(lead => lead.id));
+    }
+  };
+
+  const handleBatchPredict = () => {
+    if (selectedCustomers.length === 0) return;
+
+    showConfirm(
+      "Confirm Batch Prediction",
+      `Are you sure you want to predict ${selectedCustomers.length} selected customers?\n\nThis will trigger ML predictions for all selected customers.`,
+      async () => {
+        try {
+          setIsBatchPredicting(true);
+          const result = await predictBatchCustomers(selectedCustomers);
+
+          const message = `Predicted: ${result.predictedCount || selectedCustomers.length} customers\nSuccessful: ${result.successCount || 0}\nFailed: ${result.failedCount || 0}`;
+
+          showSuccess("Batch Prediction Complete", message);
+
+          // Clear selection and refresh
+          setSelectedCustomers([]);
+          fetchLeads();
+        } catch (err) {
+          showError(
+            "Batch Prediction Failed",
+            err instanceof Error ? err.message : "Unknown error occurred during batch prediction"
+          );
+        } finally {
+          setIsBatchPredicting(false);
+        }
+      }
+    );
+  };
+
   const filteredLeads = leads.filter((lead) => {
     const score = lead.probability_score ?? 0;
     if (scoreFilter === "high") return score >= 0.75;
@@ -122,13 +176,41 @@ export default function Leads() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-gray-900">Customer List</h2>
-        <button
-          onClick={handleAddNew}
-          className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
-        >
-          <Plus className="h-4 w-4" />
-          Add Lead
-        </button>
+        <div className="flex gap-2">
+          {selectedCustomers.length > 0 && (
+            <button
+              onClick={handleBatchPredict}
+              disabled={isBatchPredicting}
+              className="flex items-center gap-2 rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium text-white hover:bg-purple-700 disabled:opacity-50"
+            >
+              {isBatchPredicting ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Predicting...
+                </>
+              ) : (
+                <>
+                  <Zap className="h-4 w-4" />
+                  Predict Selected ({selectedCustomers.length})
+                </>
+              )}
+            </button>
+          )}
+          <button
+            onClick={() => setShowCSVModal(true)}
+            className="flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700"
+          >
+            <Upload className="h-4 w-4" />
+            Upload CSV
+          </button>
+          <button
+            onClick={handleAddNew}
+            className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+          >
+            <Plus className="h-4 w-4" />
+            Add Lead
+          </button>
+        </div>
       </div>
 
       <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
@@ -180,9 +262,22 @@ export default function Leads() {
       ) : (
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           <div className="space-y-4">
-            <h3 className="text-lg font-bold text-gray-800">
-              Customer List ({filteredLeads.length})
-            </h3>
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-bold text-gray-800">
+                Customer List ({filteredLeads.length})
+              </h3>
+              {filteredLeads.length > 0 && (
+                <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={selectedCustomers.length === filteredLeads.length && filteredLeads.length > 0}
+                    onChange={toggleSelectAll}
+                    className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500"
+                  />
+                  Select All
+                </label>
+              )}
+            </div>
             {filteredLeads.map((lead) => {
               const score = lead.probability_score ?? 0;
               const scoreColor =
@@ -192,26 +287,37 @@ export default function Leads() {
                     ? "text-yellow-600"
                     : "text-red-600";
 
+              // Prioritas: full_name > name > fallback to Customer ID
+              const displayName = lead.full_name || lead.name || `Customer #${lead.id}`;
+              const initial = displayName.charAt(0).toUpperCase();
+
               return (
                 <div
                   key={lead.id}
-                  className="cursor-pointer rounded-xl border border-gray-100 bg-white p-4 shadow-sm transition hover:shadow-md"
+                  className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm transition hover:shadow-md"
                 >
-                  <div className="flex items-start justify-between">
+                  <div className="flex items-start justify-between gap-3">
+                    <input
+                      type="checkbox"
+                      checked={selectedCustomers.includes(lead.id)}
+                      onChange={() => toggleSelectCustomer(lead.id)}
+                      className="mt-4 h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                      onClick={(e) => e.stopPropagation()}
+                    />
                     <div
-                      className="flex-1"
+                      className="flex-1 cursor-pointer"
                       onClick={() => handleDetailClick(lead)}
                     >
                       <div className="flex items-center gap-3">
                         <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-lg font-bold text-blue-600">
-                          {(lead.full_name || lead.job || "?").charAt(0).toUpperCase()}
+                          {initial}
                         </div>
                         <div>
                           <h4 className="font-semibold text-gray-900">
-                            {lead.full_name || `${lead.job} (${lead.age}y)`}
+                            {displayName}
                           </h4>
                           <p className="text-sm text-gray-500">
-                            {lead.job} • {lead.education}
+                            {lead.job} • {lead.education} • {lead.age}y
                           </p>
                         </div>
                       </div>
@@ -321,6 +427,16 @@ export default function Leads() {
         />
       )}
 
+      {showCSVModal && (
+        <CSVUploadModal
+          onClose={() => setShowCSVModal(false)}
+          onSuccess={() => {
+            setShowCSVModal(false);
+            fetchLeads();
+          }}
+        />
+      )}
+
       {deleteConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
@@ -348,6 +464,20 @@ export default function Leads() {
           </div>
         </div>
       )}
+
+      {/* Notification Modal */}
+      <NotificationModal
+        isOpen={notification.isOpen}
+        onClose={closeNotification}
+        type={notification.type}
+        title={notification.title}
+        message={notification.message}
+        onConfirm={notification.onConfirm}
+        confirmText={notification.type === "confirm" ? "Yes, Predict" : "OK"}
+        cancelText="Cancel"
+        autoClose={notification.type === "success"}
+        autoCloseDuration={4000}
+      />
     </div>
   );
-} 
+}

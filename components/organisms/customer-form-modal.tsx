@@ -49,8 +49,8 @@ export default function CustomerFormModal({
   useEffect(() => {
     if (customer) {
       setFormData({
-        full_name: customer.full_name || "",
-        balance: customer.balance || 0,
+        full_name: customer.full_name || customer.name || "",
+        balance: customer.balance ?? 0,
         age: customer.age,
         job: customer.job,
         marital: customer.marital,
@@ -120,10 +120,11 @@ export default function CustomerFormModal({
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div>
               <label className="mb-2 block text-sm font-medium text-gray-700">
-                Full Name
+                Full Name *
               </label>
               <input
                 type="text"
+                required
                 value={formData.full_name}
                 onChange={(e) => handleChange("full_name", e.target.value)}
                 className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -136,8 +137,12 @@ export default function CustomerFormModal({
               </label>
               <input
                 type="number"
+                step="0.01"
                 value={formData.balance}
-                onChange={(e) => handleChange("balance", parseFloat(e.target.value))}
+                onChange={(e) => {
+                  const val = parseFloat(e.target.value);
+                  handleChange("balance", isNaN(val) ? 0 : val);
+                }}
                 className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
@@ -152,7 +157,10 @@ export default function CustomerFormModal({
                 max="100"
                 required
                 value={formData.age}
-                onChange={(e) => handleChange("age", parseInt(e.target.value))}
+                onChange={(e) => {
+                  const val = parseInt(e.target.value);
+                  if (!isNaN(val)) handleChange("age", val);
+                }}
                 className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
@@ -292,7 +300,10 @@ export default function CustomerFormModal({
                 min="1"
                 required
                 value={formData.campaign}
-                onChange={(e) => handleChange("campaign", parseInt(e.target.value))}
+                onChange={(e) => {
+                  const val = parseInt(e.target.value);
+                  if (!isNaN(val)) handleChange("campaign", val);
+                }}
                 className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
@@ -304,7 +315,10 @@ export default function CustomerFormModal({
               <input
                 type="number"
                 value={formData.pdays}
-                onChange={(e) => handleChange("pdays", parseInt(e.target.value))}
+                onChange={(e) => {
+                  const val = parseInt(e.target.value);
+                  if (!isNaN(val)) handleChange("pdays", val);
+                }}
                 className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
@@ -317,7 +331,10 @@ export default function CustomerFormModal({
                 type="number"
                 min="0"
                 value={formData.previous}
-                onChange={(e) => handleChange("previous", parseInt(e.target.value))}
+                onChange={(e) => {
+                  const val = parseInt(e.target.value);
+                  if (!isNaN(val)) handleChange("previous", val);
+                }}
                 className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>

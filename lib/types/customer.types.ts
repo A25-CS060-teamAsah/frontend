@@ -9,6 +9,8 @@ export interface PaginationMeta {
 
 export interface Customer {
   id: number;
+  name?: string | null; // Database field name
+  full_name?: string | null; // Alias for frontend (mapped from name)
   age: number;
   job: string;
   marital: string;
@@ -29,7 +31,6 @@ export interface Customer {
   model_version?: string | null;
   created_at?: string;
   updated_at?: string;
-  full_name?: string | null;
   balance?: number | null;
   email?: string | null;
   phone?: string | null;
@@ -41,17 +42,17 @@ export interface CustomerListResponse {
 }
 
 export interface CustomerStats {
-  total_customers: number;
-  avg_age: number;
-  with_housing_loan: number;
-  with_personal_loan: number;
-  unique_jobs: number;
-  unique_education_levels: number;
-  pending_calls?: number;
-  monthly_conversions?: number;
-  monthly_trend?: MonthlyTrend[];
-  high_priority_count?: number;
-  avg_score?: number;
+  totalCustomers: number;
+  avgAge: string;
+  withHousingLoan: number;
+  withPersonalLoan: number;
+  uniqueJobs: number;
+  uniqueEducationLevels: number;
+  pendingCalls?: number;
+  monthlyConversions?: number;
+  monthlyTrend?: MonthlyTrend[];
+  highPriorityCount?: number;
+  avgScore?: number;
 }
 
 export interface MonthlyTrend {

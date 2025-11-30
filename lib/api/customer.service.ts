@@ -82,3 +82,47 @@ export const deleteCustomer = async (id: number): Promise<void> => {
   }
 };
 
+export const uploadCSV = async (file: File): Promise<{
+  message: string;
+  imported: number;
+  failed: number;
+  errors?: any[];
+}> => {
+  try {
+    const formData = new FormData();
+    formData.append("csvfile", file); // Must match backend field name
+
+    const response = await apiClient.post<any>("/customers/upload-csv", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    // Backend returns different structure, transform it to expected format
+    const backendData = response.data;
+
+    return {
+      message: backendData.message || "CSV upload processed",
+      imported: backendData.summary?.successfullyCreated || 0,
+      failed: backendData.summary?.failedToCreate || 0,
+      errors: [
+        ...(backendData.validationErrors || []),
+        ...(backendData.insertionErrors || [])
+      ]
+    };
+  } catch (error) {
+    throw new Error(getErrorMessage(error));
+  }
+};
+
+export const downloadCSVTemplate = async (): Promise<Blob> => {
+  try {
+    const response = await apiClient.get("/customers/csv-template", {
+      responseType: "blob",
+    });
+    return response.data;
+  } catch (error) {
+    throw new Error(getErrorMessage(error));
+  }
+};
+

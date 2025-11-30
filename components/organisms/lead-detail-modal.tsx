@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { X, Loader2, TrendingUp, AlertCircle } from "lucide-react";
+import { X, Loader2, TrendingUp, AlertCircle, History, Clock } from "lucide-react";
 import { Customer } from "@/lib/types/customer.types";
+import { getCustomerPredictionHistory } from "@/lib/api/prediction.service";
+import { PredictionHistory } from "@/lib/types/prediction.types";
 
 interface PredictionResponse {
   probability: number;
@@ -22,32 +24,54 @@ export default function LeadDetailModal({
   const [prediction, setPrediction] = useState<PredictionResponse | null>(null);
   const [isLoadingPrediction, setIsLoadingPrediction] = useState(false);
   const [predictionError, setPredictionError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<"details" | "history">("details");
+  const [predictionHistory, setPredictionHistory] = useState<PredictionHistory[]>([]);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+  const [historyError, setHistoryError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchPrediction();
+    fetchHistory();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [customer.id]);
 
+  const fetchHistory = async () => {
+    try {
+      setIsLoadingHistory(true);
+      setHistoryError(null);
+      const history = await getCustomerPredictionHistory(customer.id);
+      setPredictionHistory(history);
+    } catch (err) {
+      setHistoryError(err instanceof Error ? err.message : "Failed to load history");
+    } finally {
+      setIsLoadingHistory(false);
+    }
+  };
+
   const fetchPrediction = async () => {
+    // If customer already has a prediction score, use it
+    if (customer.probability_score !== null && customer.probability_score !== undefined) {
+      setPrediction({
+        probability: customer.probability_score,
+        willSubscribe: customer.probability_score >= 0.5,
+        features: {},
+      });
+      return;
+    }
+
+    // Otherwise, fetch new prediction
     try {
       setIsLoadingPrediction(true);
       setPredictionError(null);
 
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}/api/v1/predictions/customer/${customer.id}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("auth_token")}`,
-          },
-        }
-      );
+      const { predictSingleCustomer } = await import("@/lib/api/prediction.service");
+      const data = await predictSingleCustomer(customer.id);
 
-      if (!response.ok) throw new Error("Failed to fetch prediction");
-
-      const data = await response.json();
-      setPrediction(data.data);
+      setPrediction({
+        probability: data.prediction.probability_score,
+        willSubscribe: data.prediction.probability_score >= 0.5,
+        features: {},
+      });
     } catch (err) {
       setPredictionError(
         err instanceof Error ? err.message : "Failed to load prediction"
@@ -82,7 +106,40 @@ export default function LeadDetailModal({
           </button>
         </div>
 
+        {/* Tabs */}
+        <div className="border-b border-gray-200 bg-gray-50 px-6">
+          <div className="flex gap-4">
+            <button
+              onClick={() => setActiveTab("details")}
+              className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                activeTab === "details"
+                  ? "border-blue-600 text-blue-600"
+                  : "border-transparent text-gray-600 hover:text-gray-900"
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <TrendingUp className="h-4 w-4" />
+                Details & Prediction
+              </div>
+            </button>
+            <button
+              onClick={() => setActiveTab("history")}
+              className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                activeTab === "history"
+                  ? "border-blue-600 text-blue-600"
+                  : "border-transparent text-gray-600 hover:text-gray-900"
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <History className="h-4 w-4" />
+                Prediction History ({predictionHistory.length})
+              </div>
+            </button>
+          </div>
+        </div>
+
         <div className="max-h-[80vh] overflow-y-auto p-6">
+          {activeTab === "details" ? (
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             <div className="space-y-6">
               <div className="rounded-xl border border-gray-200 bg-gray-50 p-6">
@@ -90,7 +147,10 @@ export default function LeadDetailModal({
                   Customer Information
                 </h3>
                 <div className="space-y-3">
-                  <DetailRow label="Full Name" value={customer.full_name || "N/A"} />
+                  <DetailRow
+                    label="Full Name"
+                    value={customer.full_name || customer.name || `Customer #${customer.id}`}
+                  />
                   <DetailRow label="Age" value={`${customer.age} years`} />
                   <DetailRow label="Job" value={customer.job} />
                   <DetailRow label="Marital Status" value={customer.marital} />
@@ -239,6 +299,112 @@ export default function LeadDetailModal({
               </div>
             </div>
           </div>
+          ) : (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900">Prediction History</h3>
+              <button
+                onClick={fetchHistory}
+                disabled={isLoadingHistory}
+                className="text-sm text-blue-600 hover:text-blue-700 flex items-center gap-1"
+              >
+                <Clock className={`h-4 w-4 ${isLoadingHistory ? 'animate-spin' : ''}`} />
+                Refresh
+              </button>
+            </div>
+
+            {isLoadingHistory ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+              </div>
+            ) : historyError ? (
+              <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-center">
+                <p className="text-red-700 text-sm">{historyError}</p>
+              </div>
+            ) : predictionHistory.length === 0 ? (
+              <div className="rounded-lg border border-gray-200 bg-gray-50 p-12 text-center">
+                <History className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-600">No prediction history available</p>
+                <p className="text-sm text-gray-500 mt-2">
+                  This customer has not been predicted yet
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {predictionHistory.map((pred, index) => {
+                  const score = pred.probability_score * 100;
+                  const scoreColor =
+                    score >= 75
+                      ? "text-green-600"
+                      : score >= 50
+                        ? "text-yellow-600"
+                        : "text-red-600";
+                  const scoreBg =
+                    score >= 75
+                      ? "bg-green-50 border-green-200"
+                      : score >= 50
+                        ? "bg-yellow-50 border-yellow-200"
+                        : "bg-red-50 border-red-200";
+
+                  return (
+                    <div
+                      key={pred.id}
+                      className={`rounded-lg border p-4 ${scoreBg}`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className={`text-3xl font-bold ${scoreColor}`}>
+                            {score.toFixed(1)}%
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-gray-900">
+                              {pred.will_subscribe ? "Will Subscribe" : "Won't Subscribe"}
+                            </p>
+                            <p className="text-xs text-gray-600">
+                              Model: {pred.model_version || "1.0"}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-sm font-medium text-gray-900">
+                            {new Date(pred.predicted_at).toLocaleDateString("id-ID", {
+                              day: "2-digit",
+                              month: "short",
+                              year: "numeric"
+                            })}
+                          </p>
+                          <p className="text-xs text-gray-600">
+                            {new Date(pred.predicted_at).toLocaleTimeString("id-ID", {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                              second: "2-digit"
+                            })}
+                          </p>
+                        </div>
+                      </div>
+                      {index === 0 && (
+                        <div className="mt-2">
+                          <span className="inline-block px-2 py-1 text-xs font-semibold rounded bg-blue-100 text-blue-700">
+                            Latest
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {predictionHistory.length > 0 && (
+              <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <p className="text-sm text-blue-900">
+                  <strong>ℹ️ Note:</strong> This shows all predictions made for this customer.
+                  Scores may change when customer data is updated or model is retrained.
+                </p>
+              </div>
+            )}
+          </div>
+          )}
         </div>
 
         <div className="border-t border-gray-200 bg-gray-50 px-6 py-4">
