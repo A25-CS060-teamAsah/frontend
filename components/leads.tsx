@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { Search, Loader2, Plus, Edit, Trash2, TrendingUp, Upload, Zap } from "lucide-react";
+import { Search, Loader2, Plus, Edit, Trash2, TrendingUp, Upload, Zap, Filter, X } from "lucide-react";
 import { getCustomers, deleteCustomer } from "@/lib/api/customer.service";
 import { predictBatchCustomers } from "@/lib/api/prediction.service";
 import { Customer } from "@/lib/types/customer.types";
@@ -39,6 +39,17 @@ export default function Leads() {
   const [isBatchPredicting, setIsBatchPredicting] = useState(false);
   const { notification, showSuccess, showError, showConfirm, closeNotification } = useNotification();
 
+  // Advanced Filter States
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [minAge, setMinAge] = useState("");
+  const [maxAge, setMaxAge] = useState("");
+  const [job, setJob] = useState("");
+  const [education, setEducation] = useState("");
+  const [marital, setMarital] = useState("");
+  const [housing, setHousing] = useState<boolean | undefined>(undefined);
+  const [loan, setLoan] = useState<boolean | undefined>(undefined);
+  const [hasDefault, setHasDefault] = useState<boolean | undefined>(undefined);
+
   useEffect(() => {
     const customerId = searchParams.get("customerId");
     if (customerId) {
@@ -50,7 +61,7 @@ export default function Leads() {
   useEffect(() => {
     fetchLeads();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, searchQuery, scoreFilter]);
+  }, [page, searchQuery, scoreFilter, minAge, maxAge, job, education, marital, housing, loan, hasDefault]);
 
   const fetchLeads = async () => {
     try {
@@ -63,6 +74,14 @@ export default function Leads() {
         search: searchQuery || undefined,
         sortBy: "probability_score",
         order: "DESC",
+        minAge: minAge ? parseInt(minAge) : undefined,
+        maxAge: maxAge ? parseInt(maxAge) : undefined,
+        job: job || undefined,
+        education: education || undefined,
+        marital: marital || undefined,
+        housing: housing,
+        loan: loan,
+        hasDefault: hasDefault,
       });
 
       setLeads(response.customers);
@@ -72,6 +91,22 @@ export default function Leads() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const clearAdvancedFilters = () => {
+    setMinAge("");
+    setMaxAge("");
+    setJob("");
+    setEducation("");
+    setMarital("");
+    setHousing(undefined);
+    setLoan(undefined);
+    setHasDefault(undefined);
+    setPage(1);
+  };
+
+  const hasActiveFilters = () => {
+    return minAge || maxAge || job || education || marital || housing !== undefined || loan !== undefined || hasDefault !== undefined;
   };
 
   const fetchLeadById = async (id: number) => {
@@ -214,38 +249,172 @@ export default function Leads() {
       </div>
 
       <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
-        <div className="flex flex-col gap-4 md:flex-row">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search by name or job..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+        <div className="flex flex-col gap-4">
+          {/* Search and Score Filter Row */}
+          <div className="flex flex-col gap-4 md:flex-row">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search by name or job..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div className="flex gap-2">
+              {["all", "high", "medium", "low"].map((filter) => (
+                <button
+                  key={filter}
+                  onClick={() => setScoreFilter(filter)}
+                  className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+                    scoreFilter === filter
+                      ? filter === "high"
+                        ? "bg-green-600 text-white"
+                        : filter === "medium"
+                          ? "bg-yellow-600 text-white"
+                          : filter === "low"
+                            ? "bg-red-600 text-white"
+                            : "bg-blue-600 text-white"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+                >
+                  {filter.charAt(0).toUpperCase() + filter.slice(1)}
+                </button>
+              ))}
+            </div>
           </div>
-          <div className="flex gap-2">
-            {["all", "high", "medium", "low"].map((filter) => (
+
+          {/* Advanced Filter Toggle */}
+          <div className="flex items-center justify-between border-t border-gray-100 pt-4">
+            <button
+              onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+              className="flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-blue-600"
+            >
+              <Filter className="h-4 w-4" />
+              Advanced Filters
+              {hasActiveFilters() && (
+                <span className="rounded-full bg-blue-600 px-2 py-0.5 text-xs text-white">Active</span>
+              )}
+            </button>
+            {hasActiveFilters() && (
               <button
-                key={filter}
-                onClick={() => setScoreFilter(filter)}
-                className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
-                  scoreFilter === filter
-                    ? filter === "high"
-                      ? "bg-green-600 text-white"
-                      : filter === "medium"
-                        ? "bg-yellow-600 text-white"
-                        : filter === "low"
-                          ? "bg-red-600 text-white"
-                          : "bg-blue-600 text-white"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
+                onClick={clearAdvancedFilters}
+                className="flex items-center gap-1 text-sm text-red-600 hover:text-red-700"
               >
-                {filter.charAt(0).toUpperCase() + filter.slice(1)}
+                <X className="h-4 w-4" />
+                Clear Filters
               </button>
-            ))}
+            )}
           </div>
+
+          {/* Advanced Filters Panel */}
+          {showAdvancedFilters && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 border-t border-gray-100 pt-4">
+              {/* Age Range */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Age Range</label>
+                <div className="flex gap-2">
+                  <input
+                    type="number"
+                    placeholder="Min"
+                    value={minAge}
+                    onChange={(e) => setMinAge(e.target.value)}
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  <input
+                    type="number"
+                    placeholder="Max"
+                    value={maxAge}
+                    onChange={(e) => setMaxAge(e.target.value)}
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              </div>
+
+              {/* Job */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Job</label>
+                <select
+                  value={job}
+                  onChange={(e) => setJob(e.target.value)}
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">All Jobs</option>
+                  <option value="admin.">Admin</option>
+                  <option value="blue-collar">Blue-collar</option>
+                  <option value="entrepreneur">Entrepreneur</option>
+                  <option value="housemaid">Housemaid</option>
+                  <option value="management">Management</option>
+                  <option value="retired">Retired</option>
+                  <option value="self-employed">Self-employed</option>
+                  <option value="services">Services</option>
+                  <option value="student">Student</option>
+                  <option value="technician">Technician</option>
+                  <option value="unemployed">Unemployed</option>
+                </select>
+              </div>
+
+              {/* Education */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Education</label>
+                <select
+                  value={education}
+                  onChange={(e) => setEducation(e.target.value)}
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">All Levels</option>
+                  <option value="primary">Primary</option>
+                  <option value="secondary">Secondary</option>
+                  <option value="tertiary">Tertiary</option>
+                  <option value="unknown">Unknown</option>
+                </select>
+              </div>
+
+              {/* Marital Status */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Marital Status</label>
+                <select
+                  value={marital}
+                  onChange={(e) => setMarital(e.target.value)}
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">All Status</option>
+                  <option value="single">Single</option>
+                  <option value="married">Married</option>
+                  <option value="divorced">Divorced</option>
+                </select>
+              </div>
+
+              {/* Housing Loan */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Housing Loan</label>
+                <select
+                  value={housing === undefined ? "" : housing ? "true" : "false"}
+                  onChange={(e) => setHousing(e.target.value === "" ? undefined : e.target.value === "true")}
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">All</option>
+                  <option value="true">Yes</option>
+                  <option value="false">No</option>
+                </select>
+              </div>
+
+              {/* Personal Loan */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Personal Loan</label>
+                <select
+                  value={loan === undefined ? "" : loan ? "true" : "false"}
+                  onChange={(e) => setLoan(e.target.value === "" ? undefined : e.target.value === "true")}
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">All</option>
+                  <option value="true">Yes</option>
+                  <option value="false">No</option>
+                </select>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
