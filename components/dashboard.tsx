@@ -70,8 +70,8 @@ export default function Dashboard() {
   }, []);
 
   const trendData = useMemo((): TrendItem[] => {
-    if (stats?.monthly_trend?.length) {
-      return stats.monthly_trend.map((item) => ({
+    if (stats?.monthlyTrend?.length) {
+      return stats.monthlyTrend.map((item) => ({
         month: item.month,
         total: item.total,
         highPriority: item.highPriority ?? Math.round(item.total * 0.25),
