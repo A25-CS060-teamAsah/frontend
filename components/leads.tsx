@@ -170,34 +170,37 @@ export default function Leads() {
   };
 
   const handleBatchPredict = () => {
-    if (selectedCustomers.length === 0) return;
+  if (selectedCustomers.length === 0) return;
 
-    showConfirm(
-      "Confirm Batch Prediction",
-      `Are you sure you want to predict ${selectedCustomers.length} selected customers?\n\nThis will trigger ML predictions for all selected customers.`,
-      async () => {
-        try {
-          setIsBatchPredicting(true);
-          const result = await predictBatchCustomers(selectedCustomers);
+      showConfirm(
+        "Confirm Batch Prediction",
+        `Are you sure you want to predict ${selectedCustomers.length} selected customers?\n\nThis will trigger ML predictions for all selected customers.`,
+        async () => {
+          try {
+            setIsBatchPredicting(true);
+            const result = await predictBatchCustomers(selectedCustomers);
 
-          const message = `Predicted: ${result.predictedCount || selectedCustomers.length} customers\nSuccessful: ${result.successCount || 0}\nFailed: ${result.failedCount || 0}`;
+            const message = `Predicted: ${result.predictions.length} customers
+            Successful: ${result.successful}
+            Failed: ${result.failed}`;
 
-          showSuccess("Batch Prediction Complete", message);
+            showSuccess("Batch Prediction Complete", message);
 
-          // Clear selection and refresh
-          setSelectedCustomers([]);
-          fetchLeads();
-        } catch (err) {
-          showError(
-            "Batch Prediction Failed",
-            err instanceof Error ? err.message : "Unknown error occurred during batch prediction"
-          );
-        } finally {
-          setIsBatchPredicting(false);
+            // Clear selection and refresh
+            setSelectedCustomers([]);
+            fetchLeads();
+          } catch (err) {
+            showError(
+              "Batch Prediction Failed",
+              err instanceof Error ? err.message : "Unknown error occurred during batch prediction"
+            );
+          } finally {
+            setIsBatchPredicting(false);
+          }
         }
-      }
-    );
-  };
+      );
+    };
+
 
   const filteredLeads = leads.filter((lead) => {
     const score = lead.probability_score ?? 0;
