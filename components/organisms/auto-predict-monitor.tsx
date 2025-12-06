@@ -167,9 +167,17 @@ export default function AutoPredictMonitor() {
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm font-medium text-gray-600">Status</span>
               <div className="flex items-center gap-2">
-                <div className={`h-2 w-2 rounded-full ${jobStatus?.isRunning ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`}></div>
-                <span className={`text-sm font-semibold ${jobStatus?.isRunning ? 'text-green-600' : 'text-gray-600'}`}>
-                  {jobStatus?.isRunning ? 'Running' : 'Idle'}
+                <div
+                  className={`h-2 w-2 rounded-full ${
+                    jobStatus?.running ? 'bg-green-500 animate-pulse' : 'bg-gray-400'
+                  }`}
+                />
+                <span
+                  className={`text-sm font-semibold ${
+                    jobStatus?.running ? 'text-green-600' : 'text-gray-600'
+                  }`}
+                >
+                  {jobStatus?.running ? 'Running' : 'Idle'}
                 </span>
               </div>
             </div>
