@@ -186,8 +186,12 @@ export default function AutoPredictMonitor() {
           <div className="p-4 bg-gray-50 rounded-lg">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm font-medium text-gray-600">Enabled</span>
-              <span className={`px-2 py-1 text-xs font-semibold rounded-full ${jobStatus?.cronEnabled ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                {jobStatus?.cronEnabled ? 'Yes' : 'No'}
+              <span
+                className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                  jobStatus?.enabled ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                }`}
+              >
+                {jobStatus?.enabled ? 'Yes' : 'No'}
               </span>
             </div>
           </div>
@@ -198,7 +202,7 @@ export default function AutoPredictMonitor() {
               <span className="text-sm font-medium text-gray-600">Last Run</span>
             </div>
             <p className="text-sm font-semibold text-gray-900 ml-6">
-              {formatDate(jobStatus?.lastRunTime)}
+              {formatDate(jobStatus?.lastRun)}
             </p>
           </div>
 
@@ -208,32 +212,31 @@ export default function AutoPredictMonitor() {
               <span className="text-sm font-medium text-gray-600">Next Run</span>
             </div>
             <p className="text-sm font-semibold text-gray-900 ml-6">
-              {formatDate(jobStatus?.nextRunTime)}
+              {formatDate(jobStatus?.nextRun)}
             </p>
           </div>
 
           <div className="p-4 bg-gray-50 rounded-lg">
             <span className="text-sm font-medium text-gray-600">Schedule</span>
             <p className="text-sm font-semibold text-gray-900 mt-1">
-              {jobStatus?.cronSchedule || 'Every 2 minutes'}
+              Every 2 minutes
             </p>
           </div>
 
           <div className="p-4 bg-gray-50 rounded-lg">
             <span className="text-sm font-medium text-gray-600">Total Runs</span>
             <p className="text-2xl font-bold text-purple-600 mt-1">
-              {jobStatus?.totalRuns || 0}
+              {0}
             </p>
           </div>
-        </div>
 
-        {/* Manual Trigger Button */}
-        <div className="mt-6 pt-6 border-t border-gray-200">
-          <button
-            onClick={handleManualTrigger}
-            disabled={isTriggeringJob || jobStatus?.isRunning}
-            className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
-          >
+          {/* Manual Trigger Button */}
+          <div className="mt-6 pt-6 border-t border-gray-200">
+            <button
+              onClick={handleManualTrigger}
+              disabled={isTriggeringJob || jobStatus?.running}
+              className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+            >
             {isTriggeringJob ? (
               <>
                 <Loader2 className="h-5 w-5 animate-spin" />
