@@ -358,10 +358,25 @@ export default function LeadDetailModal({
                           </div>
                           <div>
                             <p className="text-sm font-medium text-gray-900">
-                              {pred.will_subscribe ? "Will Subscribe" : "Won't Subscribe"}
+                              {(() => {
+                                // paksa pembacaan dengan type-safe checking
+                                const anyPred = pred as any;
+
+                                const will =
+                                  anyPred.will_subscribe ??
+                                  anyPred.willSubscribe ??
+                                  (typeof anyPred.prediction === "number"
+                                    ? anyPred.prediction === 1
+                                    : null);
+
+                                return will ? "Will Subscribe" : "Won't Subscribe";
+                              })()}
                             </p>
                             <p className="text-xs text-gray-600">
-                              Model: {pred.model_version || "1.0"}
+                              Model: {(pred as any).model_version ??
+                                      (pred as any).modelVersion ??
+                                      (pred as any).version ??
+                                      "1.0"}
                             </p>
                           </div>
                         </div>
