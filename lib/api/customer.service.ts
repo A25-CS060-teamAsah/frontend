@@ -25,7 +25,7 @@ export const getCustomers = async (
 ): Promise<CustomerListResponse> => {
   try {
     const response = await apiClient.get<ApiResponse<CustomerListResponse>>(
-      "/customers",
+      "/api/v1/customers",
       { params }
     );
     return response.data.data;
@@ -37,7 +37,7 @@ export const getCustomers = async (
 export const getCustomerStats = async (): Promise<CustomerStats> => {
   try {
     const response = await apiClient.get<ApiResponse<CustomerStats>>(
-      "/customers/stats"
+      "/api/v1/customers/stats"
     );
     return response.data.data;
   } catch (error) {
@@ -50,7 +50,7 @@ export const createCustomer = async (
 ): Promise<Customer> => {
   try {
     const response = await apiClient.post<ApiResponse<Customer>>(
-      "/customers",
+      "/api/v1/customers",
       payload
     );
     return response.data.data;
@@ -65,7 +65,7 @@ export const updateCustomer = async (
 ): Promise<Customer> => {
   try {
     const response = await apiClient.put<ApiResponse<Customer>>(
-      `/customers/${id}`,
+      `/api/v1/customers/${id}`,
       payload
     );
     return response.data.data;
@@ -76,7 +76,7 @@ export const updateCustomer = async (
 
 export const deleteCustomer = async (id: number): Promise<void> => {
   try {
-    await apiClient.delete<ApiResponse<null>>(`/customers/${id}`);
+    await apiClient.delete<ApiResponse<null>>(`/api/v1/customers/${id}`);
   } catch (error) {
     throw new Error(getErrorMessage(error));
   }

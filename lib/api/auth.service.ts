@@ -9,7 +9,7 @@ import { AxiosError } from 'axios'
  */
 export const login = async (credentials: LoginRequest): Promise<LoginResponse> => {
   try {
-    const response = await apiClient.post<LoginResponse>('/auth/login', credentials)
+    const response = await apiClient.post<LoginResponse>('/api/v1/auth/login', credentials)
     
     if (response.data.success && response.data.data.token) {
       localStorage.setItem('auth_token', response.data.data.token)
@@ -46,7 +46,7 @@ export const login = async (credentials: LoginRequest): Promise<LoginResponse> =
  */
 export const register = async (userData: RegisterRequest): Promise<RegisterResponse> => {
   try {
-    const response = await apiClient.post<RegisterResponse>('/auth/register', userData)
+    const response = await apiClient.post<RegisterResponse>('/api/v1/auth/register', userData)
     return response.data
   } catch (error) {
     const axiosError = error as AxiosError<ApiError>
@@ -86,7 +86,7 @@ export const logout = (): void => {
  */
 export const getMe = async () => {
   try {
-    const response = await apiClient.get('/auth/me')
+    const response = await apiClient.get('/api/v1/auth/me')
     if (response.data.success && response.data.data) {
       localStorage.setItem('user', JSON.stringify(response.data.data))
       return response.data.data

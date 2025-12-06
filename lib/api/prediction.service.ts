@@ -28,7 +28,7 @@ export const getTopLeads = async (params: {
 } = {}): Promise<Customer[]> => {
   try {
     const response = await apiClient.get<ApiResponse<TopLeadsResponse>>(
-      "/predictions/top-leads",
+      "/api/v1/predictions/top-leads",
       { params }
     );
     return response.data.data.leads;
@@ -40,7 +40,7 @@ export const getTopLeads = async (params: {
 export const getPredictionStats = async (): Promise<PredictionStats> => {
   try {
     const response = await apiClient.get<ApiResponse<PredictionStats>>(
-      "/predictions/stats"
+      "/api/v1/predictions/stats"
     );
     return response.data.data;
   } catch (error) {
@@ -80,7 +80,7 @@ export const getCustomerPredictionHistory = async (
 ): Promise<PredictionHistory[]> => {
   try {
     const response = await apiClient.get<ApiResponse<{ history: PredictionHistory[] }>>(
-      `/predictions/customer/${customerId}/history`
+      `/api/v1/predictions/customer/${customerId}/history`
     );
     return response.data.data.history;
   } catch (error) {
@@ -91,7 +91,7 @@ export const getCustomerPredictionHistory = async (
 export const getJobStatus = async (): Promise<JobStatus> => {
   try {
     const response = await apiClient.get<ApiResponse<JobStatus>>(
-      "/predictions/job/status"
+      "/api/v1/predictions/job/status"
     );
     return response.data.data;
   } catch (error) {
@@ -102,7 +102,7 @@ export const getJobStatus = async (): Promise<JobStatus> => {
 export const getCacheStats = async (): Promise<CacheStats> => {
   try {
     const response = await apiClient.get<ApiResponse<CacheStats>>(
-      "/predictions/cache/stats"
+      "/api/v1/predictions/cache/stats"
     );
     return response.data.data;
   } catch (error) {
@@ -113,7 +113,7 @@ export const getCacheStats = async (): Promise<CacheStats> => {
 export const triggerManualPredictJob = async (): Promise<{ message: string; results: any }> => {
   try {
     const response = await apiClient.post<ApiResponse<{ message: string; results: any }>>(
-      "/predictions/job/trigger"
+      "/api/v1/predictions/job/trigger"
     );
     return response.data.data;
   } catch (error) {
