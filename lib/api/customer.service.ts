@@ -86,13 +86,13 @@ export const uploadCSV = async (file: File): Promise<{
   message: string;
   imported: number;
   failed: number;
-  errors?: any[];
+  errors?: Array<{ row?: number; errors?: string[]; message?: string }>;
 }> => {
   try {
     const formData = new FormData();
     formData.append("csvfile", file); // Must match backend field name
 
-    const response = await apiClient.post<any>("/customers/upload-csv", formData, {
+    const response = await apiClient.post<{ message?: string; summary?: { successfullyCreated?: number; failedToCreate?: number }; validationErrors?: Array<{ row?: number; errors?: string[]; message?: string }>; insertionErrors?: Array<{ row?: number; errors?: string[]; message?: string }> }>("/customers/upload-csv", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },

@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { Award, Clock, Phone, MessageCircle, Mail, TrendingUp, Loader2 } from "lucide-react";
 import { getCustomers } from "@/lib/api/customer.service";
 import { Customer } from "@/lib/types/customer.types";
-import { getScoreBadge, getScoreColor } from "@/lib/utils";
 
 export default function Pending() {
   const [showContactOptions, setShowContactOptions] = useState<number | null>(null);
@@ -65,8 +64,6 @@ export default function Pending() {
   }
 
   const totalPending = pendingLeads.length;
-  const highPriority = 0; // No scores yet for pending
-  const mediumPriority = 0; // No scores yet for pending
 
   return (
     <div className="space-y-6">

@@ -16,7 +16,7 @@ export default function CSVUploadModal({ onClose, onSuccess }: CSVUploadModalPro
     message: string;
     imported: number;
     failed: number;
-    errors?: any[];
+    errors?: Array<{ row?: number; errors?: string[]; message?: string }>;
   } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);

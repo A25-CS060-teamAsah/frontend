@@ -110,9 +110,9 @@ export const getCacheStats = async (): Promise<CacheStats> => {
   }
 };
 
-export const triggerManualPredictJob = async (): Promise<{ message: string; results: any }> => {
+export const triggerManualPredictJob = async (): Promise<{ message: string; results: { total: number; success: number; failed: number } }> => {
   try {
-    const response = await apiClient.post<ApiResponse<{ message: string; results: any }>>(
+    const response = await apiClient.post<ApiResponse<{ message: string; results: { total: number; success: number; failed: number } }>>(
       "/predictions/job/trigger"
     );
     return response.data.data;

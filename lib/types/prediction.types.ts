@@ -40,6 +40,9 @@ export interface BatchPredictionResult {
   successful: number;
   failed: number;
   message: string;
+  predictedCount?: number;
+  successCount?: number;
+  failedCount?: number;
 }
 
 export interface PredictionHistory {
@@ -47,13 +50,21 @@ export interface PredictionHistory {
   customer_id: number;
   probability_score: number;
   predicted_at: string;
+  will_subscribe?: boolean;
+  model_version?: string;
 }
 
 export interface JobStatus {
   enabled: boolean;
   running: boolean;
+  isRunning?: boolean;
   lastRun: string | null;
   nextRun: string | null;
+  lastRunTime?: string | null;
+  nextRunTime?: string | null;
+  cronEnabled?: boolean;
+  cronSchedule?: string;
+  totalRuns?: number;
   cacheStats: {
     keys: number;
     hits: number;

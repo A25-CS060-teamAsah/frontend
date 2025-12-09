@@ -53,14 +53,14 @@ export default function PredictionAnalytics() {
   }
 
   // Support both camelCase and snake_case from backend
-  const totalPredictions = (stats as any)?.totalPredictions || (stats as any)?.total_predictions || 0;
-  const highPriority = (stats as any)?.highPriorityCount || (stats as any)?.high_priority_count || 0;
-  const mediumPriority = (stats as any)?.mediumPriorityCount || (stats as any)?.medium_priority_count || 0;
-  const lowPriority = (stats as any)?.lowPriorityCount || (stats as any)?.low_priority_count || 0;
+  const totalPredictions = stats?.totalPredictions || 0;
+  const highPriority = stats?.highPriorityCount || 0;
+  const mediumPriority = stats?.mediumPriorityCount || 0;
+  const lowPriority = stats?.lowPriorityCount || 0;
   // Convert to percentage (backend sends 0.34, display as 34%)
-  const avgScore = parseFloat((stats as any)?.averageScore || (stats as any)?.avg_score || '0') * 100;
-  const customersWithPredictions = (stats as any)?.customersWithPredictions || (stats as any)?.customers_with_predictions || 0;
-  const customersWithoutPredictions = (stats as any)?.customersWithoutPredictions || (stats as any)?.customers_without_predictions || 0;
+  const avgScore = parseFloat(stats?.averageScore || '0') * 100;
+  const customersWithPredictions = stats?.customersWithPredictions || 0;
+  const customersWithoutPredictions = stats?.customersWithoutPredictions || 0;
 
   return (
     <div className="space-y-6">

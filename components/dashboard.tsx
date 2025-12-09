@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { getCustomerStats } from "@/lib/api/customer.service";
 import { getTopLeads, getPredictionStats } from "@/lib/api/prediction.service";
-import type { Customer, CustomerStats } from "@/lib/types/customer.types";
+import type { Customer, CustomerStats, MonthlyTrend } from "@/lib/types/customer.types";
 
 type TrendItem = {
   month: string;
@@ -70,8 +70,8 @@ export default function Dashboard() {
   }, []);
 
   const trendData = useMemo((): TrendItem[] => {
-    if (stats?.monthly_trend?.length) {
-      return stats.monthly_trend.map((item) => ({
+    if (stats?.monthlyTrend?.length) {
+      return stats.monthlyTrend.map((item: MonthlyTrend) => ({
         month: item.month,
         total: item.total,
         highPriority: item.highPriority ?? Math.round(item.total * 0.25),
@@ -94,15 +94,15 @@ export default function Dashboard() {
     score: item.avgScore,
   }));
 
-  const totalCardValue = (stats as any)?.totalCustomers ?? (stats as any)?.total_customers ?? 0;
+  const totalCardValue = stats?.totalCustomers ?? 0;
   const highPriorityCardValue = highPriorityCount;
   const avgScoreCardValue = avgScore;
 
   const maxTotal = Math.max(...totalTrend.map((item) => item.count), 1);
   const maxHigh = Math.max(...highPriorityTrend.map((item) => item.count), 1);
 
-  const pendingCalls = (stats as any)?.pendingCalls ?? (stats as any)?.pending_calls ?? 0;
-  const monthlyConversions = (stats as any)?.monthlyConversions ?? (stats as any)?.monthly_conversions ?? 0;
+  const pendingCalls = stats?.pendingCalls ?? 0;
+  const monthlyConversions = stats?.monthlyConversions ?? 0;
 
   const handleLeadClick = (customerId: number) => {
     router.push(`/leadList?customerId=${customerId}`);
