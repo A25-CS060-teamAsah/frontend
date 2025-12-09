@@ -90,7 +90,7 @@ export default function CustomerFormModal({
 
   const handleChange = (
     field: keyof CustomerPayload,
-    value: string | number | boolean
+    value: string | number | boolean,
   ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
@@ -110,7 +110,10 @@ export default function CustomerFormModal({
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="max-h-[80vh] overflow-y-auto p-6">
+        <form
+          onSubmit={handleSubmit}
+          className="max-h-[80vh] overflow-y-auto p-6"
+        >
           {error && (
             <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-4 text-red-600">
               {error}
@@ -349,7 +352,10 @@ export default function CustomerFormModal({
                 onChange={(e) => handleChange("has_default", e.target.checked)}
                 className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500"
               />
-              <label htmlFor="has_default" className="text-sm font-medium text-gray-700">
+              <label
+                htmlFor="has_default"
+                className="text-sm font-medium text-gray-700"
+              >
                 Has Credit Default
               </label>
             </div>
@@ -359,10 +365,15 @@ export default function CustomerFormModal({
                 type="checkbox"
                 id="has_housing_loan"
                 checked={formData.has_housing_loan}
-                onChange={(e) => handleChange("has_housing_loan", e.target.checked)}
+                onChange={(e) =>
+                  handleChange("has_housing_loan", e.target.checked)
+                }
                 className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500"
               />
-              <label htmlFor="has_housing_loan" className="text-sm font-medium text-gray-700">
+              <label
+                htmlFor="has_housing_loan"
+                className="text-sm font-medium text-gray-700"
+              >
                 Has Housing Loan
               </label>
             </div>
@@ -372,10 +383,15 @@ export default function CustomerFormModal({
                 type="checkbox"
                 id="has_personal_loan"
                 checked={formData.has_personal_loan}
-                onChange={(e) => handleChange("has_personal_loan", e.target.checked)}
+                onChange={(e) =>
+                  handleChange("has_personal_loan", e.target.checked)
+                }
                 className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500"
               />
-              <label htmlFor="has_personal_loan" className="text-sm font-medium text-gray-700">
+              <label
+                htmlFor="has_personal_loan"
+                className="text-sm font-medium text-gray-700"
+              >
                 Has Personal Loan
               </label>
             </div>

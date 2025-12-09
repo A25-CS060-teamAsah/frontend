@@ -1,9 +1,21 @@
 "use client";
 
-import { X, CheckCircle, AlertCircle, Info, AlertTriangle, HelpCircle } from "lucide-react";
+import {
+  X,
+  CheckCircle,
+  AlertCircle,
+  Info,
+  AlertTriangle,
+  HelpCircle,
+} from "lucide-react";
 import { useEffect } from "react";
 
-export type NotificationType = "success" | "error" | "info" | "warning" | "confirm";
+export type NotificationType =
+  | "success"
+  | "error"
+  | "info"
+  | "warning"
+  | "confirm";
 
 interface NotificationModalProps {
   isOpen: boolean;
@@ -111,9 +123,13 @@ export default function NotificationModal({
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
       <div className="w-full max-w-md animate-in zoom-in-95 duration-200">
-        <div className={`rounded-2xl border-2 bg-white shadow-2xl ${colors.border}`}>
+        <div
+          className={`rounded-2xl border-2 bg-white shadow-2xl ${colors.border}`}
+        >
           {/* Header */}
-          <div className={`rounded-t-2xl border-b-2 p-6 ${colors.bg} ${colors.border}`}>
+          <div
+            className={`rounded-t-2xl border-b-2 p-6 ${colors.bg} ${colors.border}`}
+          >
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-4">
                 {getIcon()}
@@ -134,9 +150,7 @@ export default function NotificationModal({
 
           {/* Body */}
           <div className="p-6">
-            <div className="text-gray-700 whitespace-pre-line">
-              {message}
-            </div>
+            <div className="text-gray-700 whitespace-pre-line">{message}</div>
           </div>
 
           {/* Footer */}

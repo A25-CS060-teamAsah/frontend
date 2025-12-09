@@ -21,7 +21,7 @@ export function UserProfile() {
       if (freshUser) {
         setUser(freshUser);
       }
-      
+
       setIsLoading(false);
     };
 
@@ -50,7 +50,9 @@ export function UserProfile() {
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-xs text-blue-200">Logged in as</p>
-          <p className="font-semibold text-white truncate text-sm">{user.email}</p>
+          <p className="font-semibold text-white truncate text-sm">
+            {user.email}
+          </p>
         </div>
       </div>
       <div className="flex items-center justify-between">

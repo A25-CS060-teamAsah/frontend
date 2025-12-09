@@ -22,7 +22,7 @@ export function useNotification() {
       type: NotificationType,
       title: string,
       message: string,
-      onConfirm?: () => void
+      onConfirm?: () => void,
     ) => {
       setNotification({
         isOpen: true,
@@ -32,42 +32,42 @@ export function useNotification() {
         onConfirm,
       });
     },
-    []
+    [],
   );
 
   const showSuccess = useCallback(
     (title: string, message: string) => {
       showNotification("success", title, message);
     },
-    [showNotification]
+    [showNotification],
   );
 
   const showError = useCallback(
     (title: string, message: string) => {
       showNotification("error", title, message);
     },
-    [showNotification]
+    [showNotification],
   );
 
   const showInfo = useCallback(
     (title: string, message: string) => {
       showNotification("info", title, message);
     },
-    [showNotification]
+    [showNotification],
   );
 
   const showWarning = useCallback(
     (title: string, message: string) => {
       showNotification("warning", title, message);
     },
-    [showNotification]
+    [showNotification],
   );
 
   const showConfirm = useCallback(
     (title: string, message: string, onConfirm: () => void) => {
       showNotification("confirm", title, message, onConfirm);
     },
-    [showNotification]
+    [showNotification],
   );
 
   const closeNotification = useCallback(() => {

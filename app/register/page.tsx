@@ -16,7 +16,7 @@ export default function RegisterPage() {
   useEffect(() => {
     const checkAuthorization = () => {
       const user = getCurrentUser();
-      
+
       if (!user) {
         router.push("/login");
         return;
@@ -78,4 +78,3 @@ export default function RegisterPage() {
     </AuthLayout>
   );
 }
-

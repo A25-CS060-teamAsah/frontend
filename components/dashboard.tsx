@@ -14,7 +14,11 @@ import {
 } from "lucide-react";
 import { getCustomerStats } from "@/lib/api/customer.service";
 import { getTopLeads, getPredictionStats } from "@/lib/api/prediction.service";
-import type { Customer, CustomerStats, MonthlyTrend } from "@/lib/types/customer.types";
+import type {
+  Customer,
+  CustomerStats,
+  MonthlyTrend,
+} from "@/lib/types/customer.types";
 
 type TrendItem = {
   month: string;
@@ -22,8 +26,6 @@ type TrendItem = {
   highPriority: number;
   avgScore: number;
 };
-
-
 
 export default function Dashboard() {
   const router = useRouter();
@@ -54,12 +56,12 @@ export default function Dashboard() {
         const now = new Date().toISOString();
         sessionStorage.setItem("leadscore:lastUpdated", now);
         window.dispatchEvent(
-          new CustomEvent("leadscore:lastUpdated", { detail: now })
+          new CustomEvent("leadscore:lastUpdated", { detail: now }),
         );
       } catch (err) {
         console.error("Fetch error:", err);
         setError(
-          err instanceof Error ? err.message : "Failed to load dashboard data"
+          err instanceof Error ? err.message : "Failed to load dashboard data",
         );
       } finally {
         setIsLoading(false);
@@ -225,7 +227,9 @@ function MetricCard({
       <div className="border-b border-gray-100 bg-gradient-to-r from-slate-50 to-white px-4 sm:px-6 py-4 sm:py-5">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-base sm:text-lg font-semibold text-gray-900">{title}</p>
+            <p className="text-base sm:text-lg font-semibold text-gray-900">
+              {title}
+            </p>
             <p className="text-xs sm:text-sm text-gray-500">{subtitle}</p>
           </div>
           <Icon className="h-5 w-5 sm:h-6 sm:w-6 text-gray-400" />
@@ -245,7 +249,7 @@ function MetricCard({
                   style={{
                     width: `${Math.min(
                       100,
-                      Math.max(5, (item.count / maxValue) * 100)
+                      Math.max(5, (item.count / maxValue) * 100),
                     )}%`,
                   }}
                 >
@@ -278,7 +282,9 @@ function HighlightCard({
   onAction,
 }: HighlightCardProps) {
   return (
-    <div className={`rounded-2xl bg-gradient-to-br ${bg} px-4 sm:px-6 py-5 sm:py-6 text-white`}>
+    <div
+      className={`rounded-2xl bg-gradient-to-br ${bg} px-4 sm:px-6 py-5 sm:py-6 text-white`}
+    >
       <Icon className="mb-3 sm:mb-4 h-8 w-8 sm:h-10 sm:w-10 opacity-80" />
       <p className="text-3xl sm:text-4xl font-bold">{value}</p>
       <p className="text-sm sm:text-base text-white/80">{label}</p>

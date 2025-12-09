@@ -1,8 +1,19 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Loader2, Play, Clock, Database, Activity, RefreshCw } from "lucide-react";
-import { getJobStatus, getCacheStats, triggerManualPredictJob } from "@/lib/api/prediction.service";
+import {
+  Loader2,
+  Play,
+  Clock,
+  Database,
+  Activity,
+  RefreshCw,
+} from "lucide-react";
+import {
+  getJobStatus,
+  getCacheStats,
+  triggerManualPredictJob,
+} from "@/lib/api/prediction.service";
 import { JobStatus, CacheStats } from "@/lib/types/prediction.types";
 import NotificationModal from "@/components/ui/notification-modal";
 import { useNotification } from "@/hooks/useNotification";
@@ -14,7 +25,8 @@ export default function AutoPredictMonitor() {
   const [isTriggeringJob, setIsTriggeringJob] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
-  const { notification, showSuccess, showError, closeNotification } = useNotification();
+  const { notification, showSuccess, showError, closeNotification } =
+    useNotification();
 
   useEffect(() => {
     loadData();
@@ -31,10 +43,7 @@ export default function AutoPredictMonitor() {
       setIsLoading(true);
       setError(null);
 
-      const [job, cache] = await Promise.all([
-        getJobStatus(),
-        getCacheStats()
-      ]);
+      const [job, cache] = await Promise.all([getJobStatus(), getCacheStats()]);
 
       setJobStatus(job);
       setCacheStats(cache);
@@ -58,20 +67,18 @@ export default function AutoPredictMonitor() {
         const { total, success, failed } = result.results;
 
         if (total === 0) {
-          message = "All customers already have predictions. No new predictions needed.";
+          message =
+            "All customers already have predictions. No new predictions needed.";
         } else if (success > 0 && failed === 0) {
-          message = `Successfully predicted ${success} customer${success > 1 ? 's' : ''}!`;
+          message = `Successfully predicted ${success} customer${success > 1 ? "s" : ""}!`;
         } else if (success > 0 && failed > 0) {
-          message = `Predicted ${success} customer${success > 1 ? 's' : ''} successfully. ${failed} failed.`;
+          message = `Predicted ${success} customer${success > 1 ? "s" : ""} successfully. ${failed} failed.`;
         } else if (failed > 0) {
-          message = `Failed to predict ${failed} customer${failed > 1 ? 's' : ''}.`;
+          message = `Failed to predict ${failed} customer${failed > 1 ? "s" : ""}.`;
         }
       }
 
-      showSuccess(
-        "Auto-Predict Job Triggered",
-        message
-      );
+      showSuccess("Auto-Predict Job Triggered", message);
 
       // Refresh data after 2 seconds
       setTimeout(() => {
@@ -80,7 +87,9 @@ export default function AutoPredictMonitor() {
     } catch (err) {
       showError(
         "Failed to Trigger Job",
-        err instanceof Error ? err.message : "Unknown error occurred while triggering the job"
+        err instanceof Error
+          ? err.message
+          : "Unknown error occurred while triggering the job",
       );
     } finally {
       setIsTriggeringJob(false);
@@ -103,7 +112,7 @@ export default function AutoPredictMonitor() {
       year: "numeric",
       hour: "2-digit",
       minute: "2-digit",
-      second: "2-digit"
+      second: "2-digit",
     });
   };
 
@@ -118,7 +127,9 @@ export default function AutoPredictMonitor() {
   if (error && !jobStatus) {
     return (
       <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-center">
-        <p className="text-red-700 font-medium">Error loading auto-predict data</p>
+        <p className="text-red-700 font-medium">
+          Error loading auto-predict data
+        </p>
         <p className="text-red-600 text-sm mt-2">{error}</p>
         <button
           onClick={loadData}
@@ -135,7 +146,9 @@ export default function AutoPredictMonitor() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Auto-Predict System Monitor</h2>
+          <h2 className="text-2xl font-bold text-gray-900">
+            Auto-Predict System Monitor
+          </h2>
           <p className="text-sm text-gray-500 mt-1">
             Last updated: {formatDate(lastRefresh.toISOString())}
           </p>
@@ -145,7 +158,7 @@ export default function AutoPredictMonitor() {
           disabled={isLoading}
           className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 disabled:opacity-50"
         >
-          <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+          <RefreshCw className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
           Refresh
         </button>
       </div>
@@ -157,8 +170,12 @@ export default function AutoPredictMonitor() {
             <Activity className="h-6 w-6 text-purple-600" />
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-gray-900">Cron Job Status</h3>
-            <p className="text-sm text-gray-500">Automatic prediction scheduler</p>
+            <h3 className="text-lg font-semibold text-gray-900">
+              Cron Job Status
+            </h3>
+            <p className="text-sm text-gray-500">
+              Automatic prediction scheduler
+            </p>
           </div>
         </div>
 
@@ -167,9 +184,13 @@ export default function AutoPredictMonitor() {
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm font-medium text-gray-600">Status</span>
               <div className="flex items-center gap-2">
-                <div className={`h-2 w-2 rounded-full ${jobStatus?.isRunning ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`}></div>
-                <span className={`text-sm font-semibold ${jobStatus?.isRunning ? 'text-green-600' : 'text-gray-600'}`}>
-                  {jobStatus?.isRunning ? 'Running' : 'Idle'}
+                <div
+                  className={`h-2 w-2 rounded-full ${jobStatus?.isRunning ? "bg-green-500 animate-pulse" : "bg-gray-400"}`}
+                ></div>
+                <span
+                  className={`text-sm font-semibold ${jobStatus?.isRunning ? "text-green-600" : "text-gray-600"}`}
+                >
+                  {jobStatus?.isRunning ? "Running" : "Idle"}
                 </span>
               </div>
             </div>
@@ -178,8 +199,10 @@ export default function AutoPredictMonitor() {
           <div className="p-4 bg-gray-50 rounded-lg">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm font-medium text-gray-600">Enabled</span>
-              <span className={`px-2 py-1 text-xs font-semibold rounded-full ${jobStatus?.cronEnabled ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                {jobStatus?.cronEnabled ? 'Yes' : 'No'}
+              <span
+                className={`px-2 py-1 text-xs font-semibold rounded-full ${jobStatus?.cronEnabled ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}
+              >
+                {jobStatus?.cronEnabled ? "Yes" : "No"}
               </span>
             </div>
           </div>
@@ -187,7 +210,9 @@ export default function AutoPredictMonitor() {
           <div className="p-4 bg-gray-50 rounded-lg">
             <div className="flex items-center gap-2 mb-1">
               <Clock className="h-4 w-4 text-gray-500" />
-              <span className="text-sm font-medium text-gray-600">Last Run</span>
+              <span className="text-sm font-medium text-gray-600">
+                Last Run
+              </span>
             </div>
             <p className="text-sm font-semibold text-gray-900 ml-6">
               {formatDate(jobStatus?.lastRunTime)}
@@ -197,7 +222,9 @@ export default function AutoPredictMonitor() {
           <div className="p-4 bg-gray-50 rounded-lg">
             <div className="flex items-center gap-2 mb-1">
               <Clock className="h-4 w-4 text-gray-500" />
-              <span className="text-sm font-medium text-gray-600">Next Run</span>
+              <span className="text-sm font-medium text-gray-600">
+                Next Run
+              </span>
             </div>
             <p className="text-sm font-semibold text-gray-900 ml-6">
               {formatDate(jobStatus?.nextRunTime)}
@@ -207,12 +234,14 @@ export default function AutoPredictMonitor() {
           <div className="p-4 bg-gray-50 rounded-lg">
             <span className="text-sm font-medium text-gray-600">Schedule</span>
             <p className="text-sm font-semibold text-gray-900 mt-1">
-              {jobStatus?.cronSchedule || 'Every 2 minutes'}
+              {jobStatus?.cronSchedule || "Every 2 minutes"}
             </p>
           </div>
 
           <div className="p-4 bg-gray-50 rounded-lg">
-            <span className="text-sm font-medium text-gray-600">Total Runs</span>
+            <span className="text-sm font-medium text-gray-600">
+              Total Runs
+            </span>
             <p className="text-2xl font-bold text-purple-600 mt-1">
               {jobStatus?.totalRuns || 0}
             </p>
@@ -251,14 +280,20 @@ export default function AutoPredictMonitor() {
             <Database className="h-6 w-6 text-blue-600" />
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-gray-900">Cache Performance</h3>
-            <p className="text-sm text-gray-500">In-memory prediction cache statistics</p>
+            <h3 className="text-lg font-semibold text-gray-900">
+              Cache Performance
+            </h3>
+            <p className="text-sm text-gray-500">
+              In-memory prediction cache statistics
+            </p>
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
           <div className="p-4 bg-blue-50 rounded-lg">
-            <span className="text-sm font-medium text-blue-900">Cached Predictions</span>
+            <span className="text-sm font-medium text-blue-900">
+              Cached Predictions
+            </span>
             <p className="text-3xl font-bold text-blue-600 mt-2">
               {cacheStats?.keys || 0}
             </p>
@@ -266,7 +301,9 @@ export default function AutoPredictMonitor() {
           </div>
 
           <div className="p-4 bg-green-50 rounded-lg">
-            <span className="text-sm font-medium text-green-900">Cache Hits</span>
+            <span className="text-sm font-medium text-green-900">
+              Cache Hits
+            </span>
             <p className="text-3xl font-bold text-green-600 mt-2">
               {cacheStats?.hits || 0}
             </p>
@@ -274,11 +311,15 @@ export default function AutoPredictMonitor() {
           </div>
 
           <div className="p-4 bg-orange-50 rounded-lg">
-            <span className="text-sm font-medium text-orange-900">Cache Misses</span>
+            <span className="text-sm font-medium text-orange-900">
+              Cache Misses
+            </span>
             <p className="text-3xl font-bold text-orange-600 mt-2">
               {cacheStats?.misses || 0}
             </p>
-            <p className="text-xs text-orange-700 mt-1">Required ML prediction</p>
+            <p className="text-xs text-orange-700 mt-1">
+              Required ML prediction
+            </p>
           </div>
         </div>
 
@@ -286,7 +327,9 @@ export default function AutoPredictMonitor() {
         <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200">
           <div className="flex items-center justify-between">
             <div>
-              <span className="text-sm font-medium text-gray-700">Cache Hit Rate</span>
+              <span className="text-sm font-medium text-gray-700">
+                Cache Hit Rate
+              </span>
               <p className="text-xs text-gray-600 mt-1">
                 Higher is better (reduces ML API calls)
               </p>
@@ -311,9 +354,10 @@ export default function AutoPredictMonitor() {
       {/* Info Card */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
         <p className="text-sm text-blue-900">
-          <strong>ℹ️ How it works:</strong> The auto-predict system automatically runs every 2 minutes
-          to predict customers without scores. Predictions are cached to reduce redundant ML API calls.
-          You can manually trigger predictions at any time using the button above.
+          <strong>ℹ️ How it works:</strong> The auto-predict system
+          automatically runs every 2 minutes to predict customers without
+          scores. Predictions are cached to reduce redundant ML API calls. You
+          can manually trigger predictions at any time using the button above.
         </p>
       </div>
 

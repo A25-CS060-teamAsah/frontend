@@ -42,14 +42,12 @@ export const formatDateTime = (value?: string | Date | null) => {
 
 export const broadcastLastUpdated = (date?: string | Date) => {
   const timestamp =
-    typeof date === "string"
-      ? date
-      : (date ?? new Date()).toISOString();
+    typeof date === "string" ? date : (date ?? new Date()).toISOString();
 
   if (typeof window !== "undefined") {
     try {
       window.dispatchEvent(
-        new CustomEvent("leadscore:lastUpdated", { detail: timestamp })
+        new CustomEvent("leadscore:lastUpdated", { detail: timestamp }),
       );
       sessionStorage.setItem("leadscore:lastUpdated", timestamp);
     } catch (error) {
@@ -64,10 +62,13 @@ const fallbackNames = fallbackLeads.map((lead) => lead.name);
 
 export const getCustomerDisplayName = (customer: Partial<Customer>) => {
   if (customer.full_name) return customer.full_name;
-  if ((customer as { name?: string }).name) return (customer as { name?: string }).name as string;
+  if ((customer as { name?: string }).name)
+    return (customer as { name?: string }).name as string;
 
   if (customer.id) {
-    return fallbackNames[(customer.id - 1) % fallbackNames.length] ?? "Customer";
+    return (
+      fallbackNames[(customer.id - 1) % fallbackNames.length] ?? "Customer"
+    );
   }
   return "Customer";
 };
@@ -92,7 +93,10 @@ export const getScoreValue = (customer?: Partial<Customer>) => {
   }
 
   if ((customer as { score?: number }).score !== undefined) {
-    return Math.max(0, Math.min(1, (customer as { score?: number }).score ?? 0));
+    return Math.max(
+      0,
+      Math.min(1, (customer as { score?: number }).score ?? 0),
+    );
   }
 
   return 0;

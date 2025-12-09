@@ -2,7 +2,18 @@
 
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { Search, Loader2, Plus, Edit, Trash2, TrendingUp, Upload, Zap, Filter, X } from "lucide-react";
+import {
+  Search,
+  Loader2,
+  Plus,
+  Edit,
+  Trash2,
+  TrendingUp,
+  Upload,
+  Zap,
+  Filter,
+  X,
+} from "lucide-react";
 import { getCustomers, deleteCustomer } from "@/lib/api/customer.service";
 import { predictBatchCustomers } from "@/lib/api/prediction.service";
 import { Customer } from "@/lib/types/customer.types";
@@ -37,7 +48,13 @@ export default function Leads() {
   const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
   const [selectedCustomers, setSelectedCustomers] = useState<number[]>([]);
   const [isBatchPredicting, setIsBatchPredicting] = useState(false);
-  const { notification, showSuccess, showError, showConfirm, closeNotification } = useNotification();
+  const {
+    notification,
+    showSuccess,
+    showError,
+    showConfirm,
+    closeNotification,
+  } = useNotification();
 
   // Advanced Filter States
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
@@ -55,13 +72,24 @@ export default function Leads() {
     if (customerId) {
       fetchLeadById(parseInt(customerId));
     }
-     
   }, [searchParams]);
 
   useEffect(() => {
     fetchLeads();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, searchQuery, scoreFilter, minAge, maxAge, job, education, marital, housing, loan, hasDefault]);
+  }, [
+    page,
+    searchQuery,
+    scoreFilter,
+    minAge,
+    maxAge,
+    job,
+    education,
+    marital,
+    housing,
+    loan,
+    hasDefault,
+  ]);
 
   const fetchLeads = async () => {
     try {
@@ -106,7 +134,16 @@ export default function Leads() {
   };
 
   const hasActiveFilters = () => {
-    return minAge || maxAge || job || education || marital || housing !== undefined || loan !== undefined || hasDefault !== undefined;
+    return (
+      minAge ||
+      maxAge ||
+      job ||
+      education ||
+      marital ||
+      housing !== undefined ||
+      loan !== undefined ||
+      hasDefault !== undefined
+    );
   };
 
   const fetchLeadById = async (id: number) => {
@@ -128,7 +165,9 @@ export default function Leads() {
       setDeleteConfirm(null);
       fetchLeads();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to delete customer");
+      setError(
+        err instanceof Error ? err.message : "Failed to delete customer",
+      );
     }
   };
 
@@ -154,10 +193,10 @@ export default function Leads() {
   };
 
   const toggleSelectCustomer = (customerId: number) => {
-    setSelectedCustomers(prev =>
+    setSelectedCustomers((prev) =>
       prev.includes(customerId)
-        ? prev.filter(id => id !== customerId)
-        : [...prev, customerId]
+        ? prev.filter((id) => id !== customerId)
+        : [...prev, customerId],
     );
   };
 
@@ -165,7 +204,7 @@ export default function Leads() {
     if (selectedCustomers.length === filteredLeads.length) {
       setSelectedCustomers([]);
     } else {
-      setSelectedCustomers(filteredLeads.map(lead => lead.id));
+      setSelectedCustomers(filteredLeads.map((lead) => lead.id));
     }
   };
 
@@ -190,12 +229,14 @@ export default function Leads() {
         } catch (err) {
           showError(
             "Batch Prediction Failed",
-            err instanceof Error ? err.message : "Unknown error occurred during batch prediction"
+            err instanceof Error
+              ? err.message
+              : "Unknown error occurred during batch prediction",
           );
         } finally {
           setIsBatchPredicting(false);
         }
-      }
+      },
     );
   };
 
@@ -294,7 +335,9 @@ export default function Leads() {
               <Filter className="h-4 w-4" />
               Advanced Filters
               {hasActiveFilters() && (
-                <span className="rounded-full bg-blue-600 px-2 py-0.5 text-xs text-white">Active</span>
+                <span className="rounded-full bg-blue-600 px-2 py-0.5 text-xs text-white">
+                  Active
+                </span>
               )}
             </button>
             {hasActiveFilters() && (
@@ -313,7 +356,9 @@ export default function Leads() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 border-t border-gray-100 pt-4">
               {/* Age Range */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Age Range</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Age Range
+                </label>
                 <div className="flex gap-2">
                   <input
                     type="number"
@@ -334,7 +379,9 @@ export default function Leads() {
 
               {/* Job */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Job</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Job
+                </label>
                 <select
                   value={job}
                   onChange={(e) => setJob(e.target.value)}
@@ -357,7 +404,9 @@ export default function Leads() {
 
               {/* Education */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Education</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Education
+                </label>
                 <select
                   value={education}
                   onChange={(e) => setEducation(e.target.value)}
@@ -373,7 +422,9 @@ export default function Leads() {
 
               {/* Marital Status */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Marital Status</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Marital Status
+                </label>
                 <select
                   value={marital}
                   onChange={(e) => setMarital(e.target.value)}
@@ -388,10 +439,20 @@ export default function Leads() {
 
               {/* Housing Loan */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Housing Loan</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Housing Loan
+                </label>
                 <select
-                  value={housing === undefined ? "" : housing ? "true" : "false"}
-                  onChange={(e) => setHousing(e.target.value === "" ? undefined : e.target.value === "true")}
+                  value={
+                    housing === undefined ? "" : housing ? "true" : "false"
+                  }
+                  onChange={(e) =>
+                    setHousing(
+                      e.target.value === ""
+                        ? undefined
+                        : e.target.value === "true",
+                    )
+                  }
                   className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">All</option>
@@ -402,10 +463,18 @@ export default function Leads() {
 
               {/* Personal Loan */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Personal Loan</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Personal Loan
+                </label>
                 <select
                   value={loan === undefined ? "" : loan ? "true" : "false"}
-                  onChange={(e) => setLoan(e.target.value === "" ? undefined : e.target.value === "true")}
+                  onChange={(e) =>
+                    setLoan(
+                      e.target.value === ""
+                        ? undefined
+                        : e.target.value === "true",
+                    )
+                  }
                   className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">All</option>
@@ -439,7 +508,10 @@ export default function Leads() {
                 <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
                   <input
                     type="checkbox"
-                    checked={selectedCustomers.length === filteredLeads.length && filteredLeads.length > 0}
+                    checked={
+                      selectedCustomers.length === filteredLeads.length &&
+                      filteredLeads.length > 0
+                    }
                     onChange={toggleSelectAll}
                     className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500"
                   />
@@ -457,7 +529,8 @@ export default function Leads() {
                     : "text-red-600";
 
               // Prioritas: full_name > name > fallback to Customer ID
-              const displayName = lead.full_name || lead.name || `Customer #${lead.id}`;
+              const displayName =
+                lead.full_name || lead.name || `Customer #${lead.id}`;
               const initial = displayName.charAt(0).toUpperCase();
 
               return (
@@ -537,9 +610,7 @@ export default function Leads() {
                 <h3 className="mb-4 text-lg font-bold text-gray-800">
                   Lead Details
                 </h3>
-                <p className="text-gray-500">
-                  Click on a lead to view details
-                </p>
+                <p className="text-gray-500">Click on a lead to view details</p>
               </div>
             ) : (
               <div className="rounded-xl border border-gray-200 bg-gray-50 p-12 text-center">

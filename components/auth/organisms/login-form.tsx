@@ -1,22 +1,22 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
-import { Checkbox } from "@/components/ui/checkbox"
-import { TextInput } from "../molecules/text-input"
-import { PasswordInput } from "../molecules/password-input"
-import { login } from "@/lib/api/auth.service"
+import { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { TextInput } from "../molecules/text-input";
+import { PasswordInput } from "../molecules/password-input";
+import { login } from "@/lib/api/auth.service";
 
 export function LoginForm() {
-  const router = useRouter()
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [rememberMe, setRememberMe] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState("")
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,19 +25,21 @@ export function LoginForm() {
 
     try {
       const response = await login({ email, password });
-      
+
       if (response.success) {
-        const redirectPath = sessionStorage.getItem("redirectAfterLogin") || "/dashboard";
+        const redirectPath =
+          sessionStorage.getItem("redirectAfterLogin") || "/dashboard";
         sessionStorage.removeItem("redirectAfterLogin");
         router.push(redirectPath);
       }
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Login failed. Please try again.";
+      const errorMessage =
+        err instanceof Error ? err.message : "Login failed. Please try again.";
       setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
-  }
+  };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -96,14 +98,13 @@ export function LoginForm() {
         </div>
       )}
 
-      <Button 
-        type="submit" 
+      <Button
+        type="submit"
         className="w-full bg-[#183495] hover:bg-[#183495]/90 text-white h-12 rounded-lg text-base font-medium disabled:opacity-50 disabled:cursor-not-allowed"
         disabled={isLoading}
       >
         {isLoading ? "Logging in..." : "Login"}
       </Button>
     </form>
-  )
+  );
 }
-

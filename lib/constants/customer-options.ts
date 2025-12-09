@@ -57,12 +57,10 @@ export const MONTH_OPTIONS = [
   label: value.charAt(0).toUpperCase() + value.slice(1),
 }));
 
-export const DAY_OPTIONS = ["mon", "tue", "wed", "thu", "fri"].map(
-  (value) => ({
-    value,
-    label: value.charAt(0).toUpperCase() + value.slice(1),
-  })
-);
+export const DAY_OPTIONS = ["mon", "tue", "wed", "thu", "fri"].map((value) => ({
+  value,
+  label: value.charAt(0).toUpperCase() + value.slice(1),
+}));
 
 export const POUTCOME_OPTIONS = [
   { value: "unknown", label: "Unknown" },
@@ -70,4 +68,3 @@ export const POUTCOME_OPTIONS = [
   { value: "nonexistent", label: "Nonexistent" },
   { value: "success", label: "Success" },
 ];
-

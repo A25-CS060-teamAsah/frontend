@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import { AuthLayout } from "@/components/auth/organisms/auth-layout"
-import { LoginForm } from "@/components/auth/organisms/login-form"
-import Image from "next/image"
+import { AuthLayout } from "@/components/auth/organisms/auth-layout";
+import { LoginForm } from "@/components/auth/organisms/login-form";
+import Image from "next/image";
 
 export default function LoginPage() {
   return (
@@ -22,6 +22,5 @@ export default function LoginPage() {
         </div>
       </div>
     </AuthLayout>
-  )
+  );
 }
-

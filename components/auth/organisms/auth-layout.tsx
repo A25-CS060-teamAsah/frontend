@@ -1,15 +1,15 @@
-'use client';
+"use client";
 
-import { ReactNode } from 'react';
-import Image from 'next/image';
+import { ReactNode } from "react";
+import Image from "next/image";
 
 interface AuthLayoutProps {
   children: ReactNode;
-  type: 'login' | 'register';
+  type: "login" | "register";
 }
 
 export function AuthLayout({ children, type }: AuthLayoutProps) {
-  const isLogin = type === 'login';
+  const isLogin = type === "login";
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">

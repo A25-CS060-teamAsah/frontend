@@ -1,16 +1,20 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Input } from "@/components/ui/input"
-import { LockIcon, EyeIcon, EyeOffIcon } from "../atoms/icon"
-import { cn } from "@/lib/utils"
+import { useState } from "react";
+import { Input } from "@/components/ui/input";
+import { LockIcon, EyeIcon, EyeOffIcon } from "../atoms/icon";
+import { cn } from "@/lib/utils";
 
 interface PasswordInputProps extends React.ComponentProps<typeof Input> {
-  showToggle?: boolean
+  showToggle?: boolean;
 }
 
-export function PasswordInput({ className, showToggle = true, ...props }: PasswordInputProps) {
-  const [showPassword, setShowPassword] = useState(false)
+export function PasswordInput({
+  className,
+  showToggle = true,
+  ...props
+}: PasswordInputProps) {
+  const [showPassword, setShowPassword] = useState(false);
 
   return (
     <div className="relative">
@@ -32,7 +36,5 @@ export function PasswordInput({ className, showToggle = true, ...props }: Passwo
         </button>
       )}
     </div>
-  )
+  );
 }
-
-

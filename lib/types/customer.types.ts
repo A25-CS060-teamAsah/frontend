@@ -102,4 +102,3 @@ export interface CustomerQueryParams {
   hasDefault?: boolean;
   marital?: string;
 }
-

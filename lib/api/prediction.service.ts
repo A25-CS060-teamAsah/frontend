@@ -22,14 +22,16 @@ const getErrorMessage = (error: unknown) => {
   return "Terjadi kesalahan pada server";
 };
 
-export const getTopLeads = async (params: {
-  limit?: number;
-  threshold?: number;
-} = {}): Promise<Customer[]> => {
+export const getTopLeads = async (
+  params: {
+    limit?: number;
+    threshold?: number;
+  } = {},
+): Promise<Customer[]> => {
   try {
     const response = await apiClient.get<ApiResponse<TopLeadsResponse>>(
       "/predictions/top-leads",
-      { params }
+      { params },
     );
     return response.data.data.leads;
   } catch (error) {
@@ -39,9 +41,8 @@ export const getTopLeads = async (params: {
 
 export const getPredictionStats = async (): Promise<PredictionStats> => {
   try {
-    const response = await apiClient.get<ApiResponse<PredictionStats>>(
-      "/predictions/stats"
-    );
+    const response =
+      await apiClient.get<ApiResponse<PredictionStats>>("/predictions/stats");
     return response.data.data;
   } catch (error) {
     throw new Error(getErrorMessage(error));
@@ -49,11 +50,11 @@ export const getPredictionStats = async (): Promise<PredictionStats> => {
 };
 
 export const predictSingleCustomer = async (
-  customerId: number
+  customerId: number,
 ): Promise<PredictionResult> => {
   try {
     const response = await apiClient.post<ApiResponse<PredictionResult>>(
-      `/predictions/customer/${customerId}`
+      `/predictions/customer/${customerId}`,
     );
     return response.data.data;
   } catch (error) {
@@ -62,12 +63,12 @@ export const predictSingleCustomer = async (
 };
 
 export const predictBatchCustomers = async (
-  customerIds: number[]
+  customerIds: number[],
 ): Promise<BatchPredictionResult> => {
   try {
     const response = await apiClient.post<ApiResponse<BatchPredictionResult>>(
       "/predictions/batch",
-      { customerIds }
+      { customerIds },
     );
     return response.data.data;
   } catch (error) {
@@ -76,12 +77,12 @@ export const predictBatchCustomers = async (
 };
 
 export const getCustomerPredictionHistory = async (
-  customerId: number
+  customerId: number,
 ): Promise<PredictionHistory[]> => {
   try {
-    const response = await apiClient.get<ApiResponse<{ history: PredictionHistory[] }>>(
-      `/predictions/customer/${customerId}/history`
-    );
+    const response = await apiClient.get<
+      ApiResponse<{ history: PredictionHistory[] }>
+    >(`/predictions/customer/${customerId}/history`);
     return response.data.data.history;
   } catch (error) {
     throw new Error(getErrorMessage(error));
@@ -91,7 +92,7 @@ export const getCustomerPredictionHistory = async (
 export const getJobStatus = async (): Promise<JobStatus> => {
   try {
     const response = await apiClient.get<ApiResponse<JobStatus>>(
-      "/predictions/job/status"
+      "/predictions/job/status",
     );
     return response.data.data;
   } catch (error) {
@@ -102,7 +103,7 @@ export const getJobStatus = async (): Promise<JobStatus> => {
 export const getCacheStats = async (): Promise<CacheStats> => {
   try {
     const response = await apiClient.get<ApiResponse<CacheStats>>(
-      "/predictions/cache/stats"
+      "/predictions/cache/stats",
     );
     return response.data.data;
   } catch (error) {
@@ -110,14 +111,19 @@ export const getCacheStats = async (): Promise<CacheStats> => {
   }
 };
 
-export const triggerManualPredictJob = async (): Promise<{ message: string; results: { total: number; success: number; failed: number } }> => {
+export const triggerManualPredictJob = async (): Promise<{
+  message: string;
+  results: { total: number; success: number; failed: number };
+}> => {
   try {
-    const response = await apiClient.post<ApiResponse<{ message: string; results: { total: number; success: number; failed: number } }>>(
-      "/predictions/job/trigger"
-    );
+    const response = await apiClient.post<
+      ApiResponse<{
+        message: string;
+        results: { total: number; success: number; failed: number };
+      }>
+    >("/predictions/job/trigger");
     return response.data.data;
   } catch (error) {
     throw new Error(getErrorMessage(error));
   }
 };
-

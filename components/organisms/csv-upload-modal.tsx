@@ -1,7 +1,14 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { X, Upload, Download, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
+import {
+  X,
+  Upload,
+  Download,
+  CheckCircle,
+  AlertCircle,
+  Loader2,
+} from "lucide-react";
 import { uploadCSV, downloadCSVTemplate } from "@/lib/api/customer.service";
 
 interface CSVUploadModalProps {
@@ -9,7 +16,10 @@ interface CSVUploadModalProps {
   onSuccess: () => void;
 }
 
-export default function CSVUploadModal({ onClose, onSuccess }: CSVUploadModalProps) {
+export default function CSVUploadModal({
+  onClose,
+  onSuccess,
+}: CSVUploadModalProps) {
   const [file, setFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadResult, setUploadResult] = useState<{
@@ -24,7 +34,10 @@ export default function CSVUploadModal({ onClose, onSuccess }: CSVUploadModalPro
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
     if (selectedFile) {
-      if (selectedFile.type !== "text/csv" && !selectedFile.name.endsWith(".csv")) {
+      if (
+        selectedFile.type !== "text/csv" &&
+        !selectedFile.name.endsWith(".csv")
+      ) {
         setError("Please select a valid CSV file");
         return;
       }
@@ -72,7 +85,9 @@ export default function CSVUploadModal({ onClose, onSuccess }: CSVUploadModalPro
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to download template");
+      setError(
+        err instanceof Error ? err.message : "Failed to download template",
+      );
     }
   };
 
@@ -87,7 +102,10 @@ export default function CSVUploadModal({ onClose, onSuccess }: CSVUploadModalPro
 
     const droppedFile = e.dataTransfer.files?.[0];
     if (droppedFile) {
-      if (droppedFile.type !== "text/csv" && !droppedFile.name.endsWith(".csv")) {
+      if (
+        droppedFile.type !== "text/csv" &&
+        !droppedFile.name.endsWith(".csv")
+      ) {
         setError("Please drop a valid CSV file");
         return;
       }
@@ -208,7 +226,9 @@ export default function CSVUploadModal({ onClose, onSuccess }: CSVUploadModalPro
                 <div className="flex-1">
                   <p
                     className={`font-medium ${
-                      uploadResult.failed === 0 ? "text-green-900" : "text-yellow-900"
+                      uploadResult.failed === 0
+                        ? "text-green-900"
+                        : "text-yellow-900"
                     }`}
                   >
                     {uploadResult.message}

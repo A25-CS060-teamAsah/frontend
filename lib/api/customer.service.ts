@@ -21,12 +21,12 @@ const getErrorMessage = (error: unknown) => {
 };
 
 export const getCustomers = async (
-  params: CustomerQueryParams = {}
+  params: CustomerQueryParams = {},
 ): Promise<CustomerListResponse> => {
   try {
     const response = await apiClient.get<ApiResponse<CustomerListResponse>>(
       "/customers",
-      { params }
+      { params },
     );
     return response.data.data;
   } catch (error) {
@@ -36,9 +36,8 @@ export const getCustomers = async (
 
 export const getCustomerStats = async (): Promise<CustomerStats> => {
   try {
-    const response = await apiClient.get<ApiResponse<CustomerStats>>(
-      "/customers/stats"
-    );
+    const response =
+      await apiClient.get<ApiResponse<CustomerStats>>("/customers/stats");
     return response.data.data;
   } catch (error) {
     throw new Error(getErrorMessage(error));
@@ -46,12 +45,12 @@ export const getCustomerStats = async (): Promise<CustomerStats> => {
 };
 
 export const createCustomer = async (
-  payload: CustomerPayload
+  payload: CustomerPayload,
 ): Promise<Customer> => {
   try {
     const response = await apiClient.post<ApiResponse<Customer>>(
       "/customers",
-      payload
+      payload,
     );
     return response.data.data;
   } catch (error) {
@@ -61,12 +60,12 @@ export const createCustomer = async (
 
 export const updateCustomer = async (
   id: number,
-  payload: Partial<CustomerPayload>
+  payload: Partial<CustomerPayload>,
 ): Promise<Customer> => {
   try {
     const response = await apiClient.put<ApiResponse<Customer>>(
       `/customers/${id}`,
-      payload
+      payload,
     );
     return response.data.data;
   } catch (error) {
@@ -82,7 +81,9 @@ export const deleteCustomer = async (id: number): Promise<void> => {
   }
 };
 
-export const uploadCSV = async (file: File): Promise<{
+export const uploadCSV = async (
+  file: File,
+): Promise<{
   message: string;
   imported: number;
   failed: number;
@@ -92,7 +93,20 @@ export const uploadCSV = async (file: File): Promise<{
     const formData = new FormData();
     formData.append("csvfile", file); // Must match backend field name
 
-    const response = await apiClient.post<{ message?: string; summary?: { successfullyCreated?: number; failedToCreate?: number }; validationErrors?: Array<{ row?: number; errors?: string[]; message?: string }>; insertionErrors?: Array<{ row?: number; errors?: string[]; message?: string }> }>("/customers/upload-csv", formData, {
+    const response = await apiClient.post<{
+      message?: string;
+      summary?: { successfullyCreated?: number; failedToCreate?: number };
+      validationErrors?: Array<{
+        row?: number;
+        errors?: string[];
+        message?: string;
+      }>;
+      insertionErrors?: Array<{
+        row?: number;
+        errors?: string[];
+        message?: string;
+      }>;
+    }>("/customers/upload-csv", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -107,8 +121,8 @@ export const uploadCSV = async (file: File): Promise<{
       failed: backendData.summary?.failedToCreate || 0,
       errors: [
         ...(backendData.validationErrors || []),
-        ...(backendData.insertionErrors || [])
-      ]
+        ...(backendData.insertionErrors || []),
+      ],
     };
   } catch (error) {
     throw new Error(getErrorMessage(error));
@@ -125,4 +139,3 @@ export const downloadCSVTemplate = async (): Promise<Blob> => {
     throw new Error(getErrorMessage(error));
   }
 };
-
