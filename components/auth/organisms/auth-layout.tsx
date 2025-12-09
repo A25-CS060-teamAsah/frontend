@@ -1,15 +1,15 @@
-"use client"
+'use client';
 
-import { ReactNode } from "react"
-import Image from "next/image"
+import { ReactNode } from 'react';
+import Image from 'next/image';
 
 interface AuthLayoutProps {
-  children: ReactNode
-  type: "login" | "register"
+  children: ReactNode;
+  type: 'login' | 'register';
 }
 
 export function AuthLayout({ children, type }: AuthLayoutProps) {
-  const isLogin = type === "login"
+  const isLogin = type === 'login';
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">
@@ -21,7 +21,7 @@ export function AuthLayout({ children, type }: AuthLayoutProps) {
                 Welcome To
               </h1>
               <h1 className="text-white text-4xl sm:text-5xl lg:text-6xl font-bold mb-3 sm:mb-4">
-                LeadScore Portal
+                LeadScore PortaL
               </h1>
               <p className="text-white text-base sm:text-lg">
                 Empowering Smarter Banking decisions.
@@ -38,7 +38,9 @@ export function AuthLayout({ children, type }: AuthLayoutProps) {
                     className="object-contain"
                   />
                 </div>
-                <p className="text-white text-sm sm:text-base font-medium">Analyze Lead</p>
+                <p className="text-white text-sm sm:text-base font-medium">
+                  Analyze Lead
+                </p>
               </div>
               <div className="flex flex-col items-center gap-2 sm:gap-3">
                 <div className="relative w-24 h-24 sm:w-28 sm:h-28 lg:w-32 lg:h-32">
@@ -49,7 +51,9 @@ export function AuthLayout({ children, type }: AuthLayoutProps) {
                     className="object-contain"
                   />
                 </div>
-                <p className="text-white text-sm sm:text-base font-medium">Improve Efficiency</p>
+                <p className="text-white text-sm sm:text-base font-medium">
+                  Improve Efficiency
+                </p>
               </div>
               <div className="flex flex-col items-center gap-2 sm:gap-3">
                 <div className="relative w-24 h-24 sm:w-28 sm:h-28 lg:w-32 lg:h-32">
@@ -60,7 +64,9 @@ export function AuthLayout({ children, type }: AuthLayoutProps) {
                     className="object-contain"
                   />
                 </div>
-                <p className="text-white text-sm sm:text-base font-medium">AI-Powered</p>
+                <p className="text-white text-sm sm:text-base font-medium">
+                  AI-Powered
+                </p>
               </div>
             </div>
           </div>
@@ -77,7 +83,7 @@ export function AuthLayout({ children, type }: AuthLayoutProps) {
                 Welcome To
               </h1>
               <h1 className="text-white text-4xl sm:text-5xl lg:text-6xl font-bold mb-3 sm:mb-4">
-                LeadScore Portal
+                LeadScore PortaL
               </h1>
               <p className="text-white text-base sm:text-lg mb-6 sm:mb-8">
                 Empowering Smarter Banking decisions.
@@ -99,6 +105,5 @@ export function AuthLayout({ children, type }: AuthLayoutProps) {
         </>
       )}
     </div>
-  )
+  );
 }
-
