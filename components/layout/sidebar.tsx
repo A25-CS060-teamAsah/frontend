@@ -2,17 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  TrendingUp,
-  Users,
-  UserPlus,
-  LogOut,
-  PanelLeftClose,
-  PanelLeft,
-  Menu,
-  BarChart3,
-  Settings,
-} from "lucide-react";
+import { TrendingUp, Users, UserPlus, LogOut, PanelLeftClose, PanelLeft, Menu, BarChart3, Settings } from "lucide-react";
 import { useState, useEffect } from "react";
 import { logout, getCurrentUser } from "@/lib/api/auth.service";
 import { UserProfile } from "@/components/auth/molecules/user-profile";
@@ -20,33 +10,14 @@ import { User } from "@/lib/types/auth.types";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 
 const NAV_ITEMS = [
-  {
-    href: "/dashboard",
-    label: "Dashboard",
-    icon: TrendingUp,
-    roles: ["admin", "sales"],
-  },
+  { href: "/dashboard", label: "Dashboard", icon: TrendingUp, roles: ["admin", "sales"] },
   { href: "/leadList", label: "Leads", icon: Users, roles: ["admin", "sales"] },
-  {
-    href: "/analytics",
-    label: "Analytics",
-    icon: BarChart3,
-    roles: ["admin", "sales"],
-  },
-  {
-    href: "/admin",
-    label: "Auto-Predict Monitor",
-    icon: Settings,
-    roles: ["admin", "sales"],
-  },
-  {
-    href: "/register",
-    label: "Create New User",
-    icon: UserPlus,
-    roles: ["admin"],
-  },
+  { href: "/analytics", label: "Analytics", icon: BarChart3, roles: ["admin", "sales"] },
+  { href: "/admin", label: "Auto-Predict Monitor", icon: Settings, roles: ["admin", "sales"] },
+  { href: "/register", label: "Create New User", icon: UserPlus, roles: ["admin"] },
 ];
 
 interface SidebarContentProps {
@@ -56,33 +27,46 @@ interface SidebarContentProps {
   pathname: string | null;
 }
 
-function SidebarContent({
-  mobile = false,
-  isCollapsed,
-  filteredItems,
-  pathname,
-}: SidebarContentProps) {
+function SidebarContent({ mobile = false, isCollapsed, filteredItems, pathname }: SidebarContentProps) {
   return (
     <div className="flex flex-col h-full">
-      <div
-        className={cn(
-          "pb-6 border-b border-white/10 transition-all duration-300",
-          isCollapsed && !mobile ? "text-center mt-16 mb-8" : "mt-14 mb-8",
-        )}
-      >
+      <div className={cn(
+        "pb-2 border-b border-white/10 transition-all duration-300",
+        isCollapsed && !mobile ? "text-center mt-16 mb-8" : "mt-14 mb-8"
+      )}>
         {!isCollapsed || mobile ? (
-          <div className="space-y-1">
-            <p className="text-xs uppercase tracking-[0.3em] text-blue-300 font-bold">
-              LeadScore
-            </p>
-            <h1 className="text-3xl font-bold text-white tracking-tight">
-              Portal
-            </h1>
-            <p className="text-xs text-blue-200 mt-2">Lead Management System</p>
+          <div className="flex items-center">
+            {/* Logo di sebelah kiri */}
+            <div className="relative w-28 h-28 flex-shrink-0">
+              <Image
+                src="/login/logo.svg"
+                alt="LeadScore Logo"
+                fill
+                className="object-contain"
+              />
+            </div>
+            {/* Text di sebelah kanan logo */}
+            <div className="space-y-0.5 -ml-5">
+              <p className="text-[10px] uppercase tracking-[0.25em] text-blue-300 font-bold leading-tight">
+                LeadScore
+              </p>
+              <h1 className="text-2xl font-bold text-white tracking-tight leading-tight">Portal</h1>
+              <p className="text-[10px] text-blue-200 mt-1 leading-tight">Lead Management System</p>
+            </div>
           </div>
         ) : (
-          <div className="w-12 h-12 mx-auto bg-linear-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
-            <span className="text-xl font-bold text-white">LS</span>
+          <div className="space-y-3">
+            {/* Logo collapsed */}
+            <div className="flex justify-center mb-2">
+              <div className="relative w-14 h-14">
+                <Image
+                  src="/login/logo.svg"
+                  alt="LeadScore Logo"
+                  fill
+                  className="object-contain"
+                />
+              </div>
+            </div>
           </div>
         )}
       </div>
@@ -101,16 +85,14 @@ function SidebarContent({
                 isActive
                   ? "bg-white text-[#0E2A7D] shadow-lg shadow-white/20"
                   : "text-blue-100 hover:bg-white/10 hover:text-white hover:translate-x-1",
-                isCollapsed && !mobile && "justify-center px-2",
+                isCollapsed && !mobile && "justify-center px-2"
               )}
               title={isCollapsed && !mobile ? item.label : undefined}
             >
-              <Icon
-                className={cn(
-                  "shrink-0 w-5 h-5 transition-transform duration-200",
-                  isActive ? "" : "group-hover:scale-110",
-                )}
-              />
+              <Icon className={cn(
+                "flex-shrink-0 transition-transform duration-200",
+                isActive ? "w-5 h-5" : "w-5 h-5 group-hover:scale-110"
+              )} />
               {(!isCollapsed || mobile) && (
                 <span className="truncate">{item.label}</span>
               )}
@@ -133,7 +115,7 @@ function SidebarContent({
           variant="ghost"
           className={cn(
             "w-full justify-center gap-2 bg-red-500/10 hover:bg-red-500/20 text-white hover:text-white border border-red-500/20 hover:border-red-500/40 transition-all duration-200 font-semibold",
-            isCollapsed && !mobile && "px-2",
+            isCollapsed && !mobile && "px-2"
           )}
         >
           <LogOut className="w-4 h-4" />
@@ -150,9 +132,7 @@ export default function Sidebar() {
   const [open, setOpen] = useState(false);
   const [user] = useState<User | null>(() => getCurrentUser());
 
-  const filteredItems = NAV_ITEMS.filter(
-    (item) => !user || item.roles.includes(user.role),
-  );
+  const filteredItems = NAV_ITEMS.filter(item => !user || item.roles.includes(user.role));
 
   useEffect(() => {
     const handleRouteChange = () => {
@@ -170,30 +150,20 @@ export default function Sidebar() {
           <Button
             variant="ghost"
             size="icon"
-            className="lg:hidden fixed top-4 left-4 z-50 bg-linear-to-br from-[#0E2A7D] to-[#1a3a9d] text-white hover:from-[#1a3a9d] hover:to-[#0E2A7D] hover:text-white shadow-xl border-2 border-white/20"
+            className="lg:hidden fixed top-4 left-4 z-50 bg-gradient-to-br from-[#0E2A7D] to-[#1a3a9d] text-white hover:from-[#1a3a9d] hover:to-[#0E2A7D] hover:text-white shadow-xl border-2 border-white/20"
           >
             <Menu className="w-5 h-5" />
           </Button>
         </SheetTrigger>
-        <SheetContent
-          side="left"
-          className="w-72 bg-linear-to-b from-[#0E2A7D] to-[#1a3a9d] text-white border-r-2 border-white/10 p-6"
-        >
-          <SidebarContent
-            mobile
-            isCollapsed={false}
-            filteredItems={filteredItems}
-            pathname={pathname}
-          />
+        <SheetContent side="left" className="w-72 bg-gradient-to-b from-[#0E2A7D] to-[#1a3a9d] text-white border-r-2 border-white/10 p-6">
+          <SidebarContent mobile isCollapsed={false} filteredItems={filteredItems} pathname={pathname} />
         </SheetContent>
       </Sheet>
 
-      <aside
-        className={cn(
-          "hidden lg:flex bg-linear-to-b from-[#0E2A7D] via-[#0E2A7D] to-[#1a3a9d] text-white h-screen flex-col transition-all duration-300 relative shadow-2xl border-r border-white/5",
-          isCollapsed ? "w-20 p-4" : "w-72 p-6",
-        )}
-      >
+      <aside className={cn(
+        "hidden lg:flex bg-gradient-to-b from-[#0E2A7D] via-[#0E2A7D] to-[#1a3a9d] text-white h-screen flex-col transition-all duration-300 relative shadow-2xl border-r border-white/5",
+        isCollapsed ? "w-20 p-4" : "w-72 p-6"
+      )}>
         <div className="relative">
           <Button
             variant="ghost"
@@ -201,7 +171,7 @@ export default function Sidebar() {
             onClick={() => setIsCollapsed(!isCollapsed)}
             className={cn(
               "absolute top-2 z-10 bg-white/10 hover:bg-white/20 text-white hover:text-white backdrop-blur-sm transition-all duration-200",
-              isCollapsed ? "right-2 h-8 w-8 p-0" : "right-2 h-8 px-3",
+              isCollapsed ? "right-2 h-8 w-8 p-0" : "right-2 h-8 px-3"
             )}
             aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
@@ -216,11 +186,7 @@ export default function Sidebar() {
           </Button>
         </div>
 
-        <SidebarContent
-          isCollapsed={isCollapsed}
-          filteredItems={filteredItems}
-          pathname={pathname}
-        />
+        <SidebarContent isCollapsed={isCollapsed} filteredItems={filteredItems} pathname={pathname} />
       </aside>
     </>
   );
