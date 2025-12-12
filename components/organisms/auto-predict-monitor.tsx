@@ -324,7 +324,7 @@ export default function AutoPredictMonitor() {
         </div>
 
         {/* Hit Rate Display */}
-        <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200">
+        <div className="mt-6 p-4 bg-linear-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200">
           <div className="flex items-center justify-between">
             <div>
               <span className="text-sm font-medium text-gray-700">
@@ -344,7 +344,7 @@ export default function AutoPredictMonitor() {
           {/* Progress Bar */}
           <div className="mt-3 w-full bg-gray-200 rounded-full h-2">
             <div
-              className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full transition-all duration-500"
+              className="bg-linear-to-r from-blue-500 to-purple-500 h-2 rounded-full transition-all duration-500"
               style={{ width: `${calculateHitRate(cacheStats)}%` }}
             ></div>
           </div>

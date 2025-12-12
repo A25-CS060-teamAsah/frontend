@@ -59,6 +59,7 @@ export interface MonthlyTrend {
   month: string;
   total: number;
   highPriority?: number;
+  willSubscribe?: number;
   avgScore?: number;
 }
 

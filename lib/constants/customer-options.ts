@@ -37,6 +37,7 @@ export const EDUCATION_OPTIONS = [
 export const CONTACT_OPTIONS = [
   { value: "cellular", label: "Cellular" },
   { value: "telephone", label: "Telephone" },
+  { value: "unknown", label: "Unknown" },
 ];
 
 export const MONTH_OPTIONS = [

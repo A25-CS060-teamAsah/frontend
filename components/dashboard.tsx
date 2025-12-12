@@ -24,6 +24,7 @@ type TrendItem = {
   month: string;
   total: number;
   highPriority: number;
+  willSubscribe: number;
   avgScore: number;
 };
 
@@ -34,7 +35,7 @@ export default function Dashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [avgScore, setAvgScore] = useState<number>(0);
-  const [highPriorityCount, setHighPriorityCount] = useState<number>(0);
+  const [positivePredictions, setPositivePredictions] = useState<number>(0);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -51,7 +52,7 @@ export default function Dashboard() {
         setStats(statsData);
         setTopLeads(leadsData);
         setAvgScore(parseFloat(predictionStats.averageScore));
-        setHighPriorityCount(predictionStats.positivePredictions);
+        setPositivePredictions(predictionStats.positivePredictions);
 
         const now = new Date().toISOString();
         sessionStorage.setItem("leadscore:lastUpdated", now);
@@ -77,6 +78,7 @@ export default function Dashboard() {
         month: item.month,
         total: item.total,
         highPriority: item.highPriority ?? Math.round(item.total * 0.25),
+        willSubscribe: item.willSubscribe ?? Math.round(item.total * 0.5),
         avgScore: item.avgScore ?? 0.7,
       }));
     }
@@ -87,24 +89,21 @@ export default function Dashboard() {
     month: item.month,
     count: item.total,
   }));
-  const highPriorityTrend = trendData.map((item) => ({
-    month: item.month,
-    count: item.highPriority,
-  }));
   const avgScoreTrend = trendData.map((item) => ({
     month: item.month,
     score: item.avgScore,
   }));
 
   const totalCardValue = stats?.totalCustomers ?? 0;
-  const highPriorityCardValue = highPriorityCount;
+  // Use positivePredictions from API for consistency with analytics page (high + medium = 18)
+  const willSubscribeCardValue = positivePredictions;
   const avgScoreCardValue = avgScore;
 
   const maxTotal = Math.max(...totalTrend.map((item) => item.count), 1);
-  const maxHigh = Math.max(...highPriorityTrend.map((item) => item.count), 1);
 
   const pendingCalls = stats?.pendingCalls ?? 0;
-  const monthlyConversions = stats?.monthlyConversions ?? 0;
+  // Use positivePredictions for green highlight card to match analytics (high + medium = 18)
+  const monthlyConversions = positivePredictions;
 
   const handleLeadClick = (customerId: number) => {
     router.push(`/leadList?customerId=${customerId}`);
@@ -114,7 +113,7 @@ export default function Dashboard() {
     <div className="space-y-4 sm:space-y-6">
       {error && (
         <div className="flex items-center gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-red-600">
-          <AlertCircle className="h-5 w-5 flex-shrink-0" />
+          <AlertCircle className="h-5 w-5 shrink-0" />
           <p className="text-sm font-medium">{error}</p>
         </div>
       )}
@@ -137,14 +136,13 @@ export default function Dashboard() {
           maxValue={maxTotal}
         />
 
-        <MetricCard
-          title="High Priority"
-          subtitle="Quality leads"
+        <SimpleStatCard
+          title="Will Subscribe"
+          subtitle="Positive predictions (score ≥50%)"
           icon={Award}
+          value={willSubscribeCardValue}
+          unit="Leads"
           accent="from-green-400 to-green-600"
-          value={`${highPriorityCardValue} Leads`}
-          data={highPriorityTrend}
-          maxValue={maxHigh}
         />
 
         <MetricCard
@@ -174,14 +172,14 @@ export default function Dashboard() {
           icon={CheckCircle}
           bg="from-green-500 to-green-600"
           value={monthlyConversions}
-          label="High Priority"
+          label="Will Subscribe"
           actionLabel="View List"
           onAction={() => router.push("/leadList")}
         />
       </div>
 
       <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white">
-        <div className="border-b border-gray-100 bg-gradient-to-r from-blue-50 to-white px-4 sm:px-6 py-4 sm:py-5">
+        <div className="border-b border-gray-100 bg-linear-to-r from-blue-50 to-white px-4 sm:px-6 py-4 sm:py-5">
           <h3 className="text-base sm:text-lg font-bold text-gray-800">
             Top Priority Leads
           </h3>
@@ -224,7 +222,7 @@ function MetricCard({
 }: MetricCardProps) {
   return (
     <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition hover:shadow-md">
-      <div className="border-b border-gray-100 bg-gradient-to-r from-slate-50 to-white px-4 sm:px-6 py-4 sm:py-5">
+      <div className="border-b border-gray-100 bg-linear-to-r from-slate-50 to-white px-4 sm:px-6 py-4 sm:py-5">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-base sm:text-lg font-semibold text-gray-900">
@@ -245,7 +243,7 @@ function MetricCard({
               </span>
               <div className="relative h-5 sm:h-6 flex-1 overflow-hidden rounded-full bg-gray-100">
                 <div
-                  className={`flex h-full items-center justify-end rounded-full bg-gradient-to-r ${accent} pr-2 text-xs font-semibold text-white transition-all`}
+                  className={`flex h-full items-center justify-end rounded-full bg-linear-to-r ${accent} pr-2 text-xs font-semibold text-white transition-all`}
                   style={{
                     width: `${Math.min(
                       100,
@@ -259,6 +257,47 @@ function MetricCard({
             </div>
           ))}
         </div>
+      </div>
+    </div>
+  );
+}
+
+type SimpleStatCardProps = {
+  title: string;
+  subtitle: string;
+  icon: typeof Users;
+  value: number;
+  unit: string;
+  accent: string;
+};
+
+function SimpleStatCard({
+  title,
+  subtitle,
+  icon: Icon,
+  value,
+  unit,
+  accent,
+}: SimpleStatCardProps) {
+  return (
+    <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition hover:shadow-md">
+      <div className="border-b border-gray-100 bg-linear-to-r from-slate-50 to-white px-4 sm:px-6 py-4 sm:py-5">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-base sm:text-lg font-semibold text-gray-900">
+              {title}
+            </p>
+            <p className="text-xs sm:text-sm text-gray-500">{subtitle}</p>
+          </div>
+          <Icon className="h-5 w-5 sm:h-6 sm:w-6 text-gray-400" />
+        </div>
+      </div>
+      <div className="px-4 sm:px-6 py-6 sm:py-8">
+        <div className="flex items-end gap-2">
+          <p className="text-4xl sm:text-5xl font-bold text-gray-900">{value}</p>
+          <p className="text-lg sm:text-xl font-medium text-gray-500 mb-1">{unit}</p>
+        </div>
+        <div className={`mt-4 h-2 w-full rounded-full bg-linear-to-r ${accent} opacity-60`} />
       </div>
     </div>
   );
@@ -283,7 +322,7 @@ function HighlightCard({
 }: HighlightCardProps) {
   return (
     <div
-      className={`rounded-2xl bg-gradient-to-br ${bg} px-4 sm:px-6 py-5 sm:py-6 text-white`}
+      className={`rounded-2xl bg-linear-to-br ${bg} px-4 sm:px-6 py-5 sm:py-6 text-white`}
     >
       <Icon className="mb-3 sm:mb-4 h-8 w-8 sm:h-10 sm:w-10 opacity-80" />
       <p className="text-3xl sm:text-4xl font-bold">{value}</p>
@@ -322,7 +361,7 @@ function TopLeadRow({ lead, onSelect }: TopLeadRowProps) {
       className="flex w-full items-center justify-between gap-2 sm:gap-4 px-4 sm:px-6 py-4 sm:py-5 text-left transition hover:bg-blue-50/60"
     >
       <div className="flex flex-1 items-center gap-3 sm:gap-4 min-w-0">
-        <div className="flex h-12 w-12 sm:h-14 sm:w-14 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-lg sm:text-xl font-bold text-white shadow-md">
+        <div className="flex h-12 w-12 sm:h-14 sm:w-14 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-blue-500 to-blue-600 text-lg sm:text-xl font-bold text-white shadow-md">
           {displayName.charAt(0).toUpperCase()}
         </div>
         <div className="min-w-0 flex-1">
@@ -334,7 +373,7 @@ function TopLeadRow({ lead, onSelect }: TopLeadRowProps) {
           </p>
         </div>
       </div>
-      <div className="flex items-center gap-3 sm:gap-6 flex-shrink-0">
+      <div className="flex items-center gap-3 sm:gap-6 shrink-0">
         <div className="text-right">
           <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">
             Score

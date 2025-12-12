@@ -81,7 +81,7 @@ function SidebarContent({
             <p className="text-xs text-blue-200 mt-2">Lead Management System</p>
           </div>
         ) : (
-          <div className="w-12 h-12 mx-auto bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
+          <div className="w-12 h-12 mx-auto bg-linear-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
             <span className="text-xl font-bold text-white">LS</span>
           </div>
         )}
@@ -107,8 +107,8 @@ function SidebarContent({
             >
               <Icon
                 className={cn(
-                  "flex-shrink-0 transition-transform duration-200",
-                  isActive ? "w-5 h-5" : "w-5 h-5 group-hover:scale-110",
+                  "shrink-0 w-5 h-5 transition-transform duration-200",
+                  isActive ? "" : "group-hover:scale-110",
                 )}
               />
               {(!isCollapsed || mobile) && (
@@ -170,14 +170,14 @@ export default function Sidebar() {
           <Button
             variant="ghost"
             size="icon"
-            className="lg:hidden fixed top-4 left-4 z-50 bg-gradient-to-br from-[#0E2A7D] to-[#1a3a9d] text-white hover:from-[#1a3a9d] hover:to-[#0E2A7D] hover:text-white shadow-xl border-2 border-white/20"
+            className="lg:hidden fixed top-4 left-4 z-50 bg-linear-to-br from-[#0E2A7D] to-[#1a3a9d] text-white hover:from-[#1a3a9d] hover:to-[#0E2A7D] hover:text-white shadow-xl border-2 border-white/20"
           >
             <Menu className="w-5 h-5" />
           </Button>
         </SheetTrigger>
         <SheetContent
           side="left"
-          className="w-72 bg-gradient-to-b from-[#0E2A7D] to-[#1a3a9d] text-white border-r-2 border-white/10 p-6"
+          className="w-72 bg-linear-to-b from-[#0E2A7D] to-[#1a3a9d] text-white border-r-2 border-white/10 p-6"
         >
           <SidebarContent
             mobile
@@ -190,7 +190,7 @@ export default function Sidebar() {
 
       <aside
         className={cn(
-          "hidden lg:flex bg-gradient-to-b from-[#0E2A7D] via-[#0E2A7D] to-[#1a3a9d] text-white h-screen flex-col transition-all duration-300 relative shadow-2xl border-r border-white/5",
+          "hidden lg:flex bg-linear-to-b from-[#0E2A7D] via-[#0E2A7D] to-[#1a3a9d] text-white h-screen flex-col transition-all duration-300 relative shadow-2xl border-r border-white/5",
           isCollapsed ? "w-20 p-4" : "w-72 p-6",
         )}
       >

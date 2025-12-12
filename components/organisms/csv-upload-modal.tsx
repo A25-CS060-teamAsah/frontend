@@ -119,7 +119,7 @@ export default function CSVUploadModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
       <div className="w-full max-w-2xl overflow-hidden rounded-2xl bg-white shadow-2xl">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-gray-200 bg-gradient-to-r from-blue-50 to-white px-6 py-4">
+        <div className="flex items-center justify-between border-b border-gray-200 bg-linear-to-r from-blue-50 to-white px-6 py-4">
           <div>
             <h2 className="text-xl font-bold text-gray-900">Upload CSV File</h2>
             <p className="text-sm text-gray-500">Bulk import customer data</p>
@@ -203,7 +203,7 @@ export default function CSVUploadModal({
           {/* Error Message */}
           {error && (
             <div className="flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 p-4 text-red-700">
-              <AlertCircle className="h-5 w-5 flex-shrink-0" />
+              <AlertCircle className="h-5 w-5 shrink-0" />
               <p className="text-sm">{error}</p>
             </div>
           )}
@@ -219,9 +219,9 @@ export default function CSVUploadModal({
             >
               <div className="flex items-start gap-3">
                 {uploadResult.failed === 0 ? (
-                  <CheckCircle className="h-5 w-5 flex-shrink-0 text-green-600" />
+                  <CheckCircle className="h-5 w-5 shrink-0 text-green-600" />
                 ) : (
-                  <AlertCircle className="h-5 w-5 flex-shrink-0 text-yellow-600" />
+                  <AlertCircle className="h-5 w-5 shrink-0 text-yellow-600" />
                 )}
                 <div className="flex-1">
                   <p
