@@ -21,10 +21,10 @@ export function AuthLayout({ children, type }: AuthLayoutProps) {
                 Welcome To
               </h1>
               <h1 className="text-white text-4xl sm:text-5xl lg:text-6xl font-bold mb-3 sm:mb-4">
-                LeadScore PortaL
+                PredictLead
               </h1>
               <p className="text-white text-base sm:text-lg">
-                Empowering Smarter Banking decisions.
+                Platform Prediksi Lead Scoring & Sales Intelligence
               </p>
             </div>
 
